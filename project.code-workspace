@@ -1,0 +1,13 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "device_type.h": "c"
+        }
+    },
+    "extensions": {}
+}
