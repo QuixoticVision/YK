@@ -56,9 +56,9 @@ static void can_rx_thread(void *para)
 static void can_channel_recv()
 {}
 
-channel channel_init(channel_hw_t type)
+channel *channel_select(channel_type type)
 {
-	rt_thread_t thread;
+	channel *p_channel = &m_channel;
 	switch (type) {
 	case CHANNEL_HW_USING_CAN:
 		
@@ -68,4 +68,5 @@ channel channel_init(channel_hw_t type)
 	default:
 		break;
 	}
+    return p_channel;
 }

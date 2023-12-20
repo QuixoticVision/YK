@@ -6,7 +6,8 @@
     ],
     "settings": {
         "files.associations": {
-            "device_type.h": "c"
+            "device_type.h": "c",
+            "channel.h": "c"
         }
     },
     "extensions": {}

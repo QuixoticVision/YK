@@ -1,22 +1,24 @@
 #ifndef __CHANNEL_H__
 #define __CHANNEL_H__
 
-#include "type.h"
+#include "common.h"
 
 typedef int (*init_t)   (void);
 typedef void (*recv_t)  (void);
 typedef void (*send_t)  (data *frame);
 
 typedef struct {
-    const init_t init;
-    const recv_t recv;
-    const send_t send;
-    void *user_data;        //±¸ÓÃ
+    int (*init)     (void);
+    int (*recv)     (rt_tick_t timeout);
+    int (*send)     (data *frame);
+    void *user_data;        //å¤‡ç”¨
 } channel;
 
 typedef enum {
 	CHANNEL_HW_USING_CAN = 0,
 	CHANNEL_HW_USING_UART,
-} channel_hw_t;
+} channel_type;
 
-#endif
+extern channel *channel_select(channel_type type);
+
+#endif /* __CHANNEL_H__ */

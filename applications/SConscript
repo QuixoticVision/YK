@@ -1,16 +1,13 @@
 from building import *
 import os
+import glob
 
 cwd     = GetCurrentDir()
 CPPPATH = [cwd]
 src = []
 
-src += ['protocol.c']
-src += ['button.c']
-src += ['hardware_interface.c']
-src += ['channel.c']
-src += ['device_type.c']
-src += ['main.c']
+src += glob.glob('*.c')
+src += ['common.h']
 
 group = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH)
 

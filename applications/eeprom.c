@@ -5,7 +5,7 @@
  * Date           Author       LYX
  * 2023-12-18     RiceChen    first edition
  */
-
+ 
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "hardware_interface.h"
+#include "eeprom.h"

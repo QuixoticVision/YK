@@ -1,31 +1,31 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#include "type.h"
+#include "common.h"
 
 /* ----------------------- FUNCTION CODE BEGIN ------------------------------------------*/
-//YKµçÆø±àÂëËø²¿·ÖÍ¨ÐÅ¹æÔ¼
-#define FUNC_CODE_YK_QUERY_STATE                    0x01    //ÉÏÎ»»ú²éÑ¯YKµçÆø±àÂëËø×´Ì¬
-#define FUNC_CODE_YK_CONTROL                        0x02    //ÃüÁîÌØ¶¨µØÖ·µÄYKµçÆø±àÂëËøÖ´ÐÐ·Ö/ºÏ²Ù×÷
-#define FUNC_CODE_YK_MODIFY_SN                      0x03    //¸ÃÖ¸ÁîÊÇ°ÑSNÂëÎªXx Xx XxµÄXxµØÖ·¸ÄÎªYYµØÖ·£¬16½øÖÆ
-#define FUNC_CODE_YK_REPORT_STATE                   0x04    //YKµçÆø±àÂëËøÖ÷¶¯ÉÏ·¢±äÎ»ÐÅÏ¢
-#define FUNC_CODE_YK_PRODUCTION_MODIFY_SN           0x07    //¸ü¸ÄYKµçÆø±àÂëËøSNÂë£¨Ö»¶ÔÉú²ú¿ª·Å,²»ÔÊÐíµ÷ÊÔÈËÔ±Ê¹ÓÃ£©
+//YKç”µæ°”ç¼–ç é”éƒ¨åˆ†é€šä¿¡è§„çº¦
+#define FUNC_CODE_YK_QUERY_STATE                    0x01    //ä¸Šä½æœºæŸ¥è¯¢YKç”µæ°”ç¼–ç é”çŠ¶æ€
+#define FUNC_CODE_YK_CONTROL                        0x02    //å‘½ä»¤ç‰¹å®šåœ°å€çš„YKç”µæ°”ç¼–ç é”æ‰§è¡Œåˆ†/åˆæ“ä½œ
+#define FUNC_CODE_YK_MODIFY_SN                      0x03    //è¯¥æŒ‡ä»¤æ˜¯æŠŠSNç ä¸ºXx Xx Xxçš„Xxåœ°å€æ”¹ä¸ºYYåœ°å€ï¼Œ16è¿›åˆ¶
+#define FUNC_CODE_YK_REPORT_STATE                   0x04    //YKç”µæ°”ç¼–ç é”ä¸»åŠ¨ä¸Šå‘å˜ä½ä¿¡æ¯
+#define FUNC_CODE_YK_PRODUCTION_MODIFY_SN           0x07    //æ›´æ”¹YKç”µæ°”ç¼–ç é”SNç ï¼ˆåªå¯¹ç”Ÿäº§å¼€æ”¾,ä¸å…è®¸è°ƒè¯•äººå‘˜ä½¿ç”¨ï¼‰
 
-//AVC¿ª¹Ø²¿·ÖÍ¨ÐÅ¹æÔ¼
-#define FUNC_CODE_AVC_QUERY_STATE                   0x31    //ÉÏÎ»»ú²éÑ¯AVC¿ª¹Ø×´Ì¬
-#define FUNC_CODE_AVC_CONTROL_UPPER                 0x35    //ÉÏÎ»»ú¶ÔAVCÖ´ÐÐÍ¶ÍËÃüÁî£¨ÉÏÎ»»úÖ÷¶¯·¢Æð£©
-#define FUNC_CODE_AVC_CONTROL_LOWER                 0x32    //ÉÏÎ»»ú¶ÔAVCÖ´ÐÐÍ¶ÍËÃüÁî£¨ÏÂÎ»»úÖ÷¶¯·¢Æð£©
-#define FUNC_CODE_AVC_MODIFY_ADDR_TYPE              0x33    //±ä¸üµØÖ·¼°Éè±¸ÀàÐÍ
-#define FUNC_CODE_AVC_MODIFY_SN                     0x37    //±ä¸üSNÖ¸Áî
-#define FUNC_CODE_AVC_PRODUCTION_QUERY              0x3F    //³¬¼¶²éÑ¯Ö¸Áî£¨µã¶Ôµã£©
+//AVCå¼€å…³éƒ¨åˆ†é€šä¿¡è§„çº¦
+#define FUNC_CODE_AVC_QUERY_STATE                   0x31    //ä¸Šä½æœºæŸ¥è¯¢AVCå¼€å…³çŠ¶æ€
+#define FUNC_CODE_AVC_CONTROL_UPPER                 0x35    //ä¸Šä½æœºå¯¹AVCæ‰§è¡ŒæŠ•é€€å‘½ä»¤ï¼ˆä¸Šä½æœºä¸»åŠ¨å‘èµ·ï¼‰
+#define FUNC_CODE_AVC_CONTROL_LOWER                 0x32    //ä¸Šä½æœºå¯¹AVCæ‰§è¡ŒæŠ•é€€å‘½ä»¤ï¼ˆä¸‹ä½æœºä¸»åŠ¨å‘èµ·ï¼‰
+#define FUNC_CODE_AVC_MODIFY_ADDR_TYPE              0x33    //å˜æ›´åœ°å€åŠè®¾å¤‡ç±»åž‹
+#define FUNC_CODE_AVC_MODIFY_SN                     0x37    //å˜æ›´SNæŒ‡ä»¤
+#define FUNC_CODE_AVC_PRODUCTION_QUERY              0x3F    //è¶…çº§æŸ¥è¯¢æŒ‡ä»¤ï¼ˆç‚¹å¯¹ç‚¹ï¼‰
 
-//Àä±ÕËøÌ×¼þ²¿·ÖÍ¨ÐÅ¹æÔ¼
-#define FUNC_CODE_COLD_LOCK_QUERY_ALL               0x21    //²éÑ¯Àä±ÕËøÌ×¼þµÄµØÖ·¡¢SN¡¢×´Ì¬
-#define FUNC_CODE_COLD_LOCK_CONTROL                 0x25    //¶ÔÀä±ÕËøÌ×¼þ½øÐÐ²Ù×÷£¬½øÈëÀä±ÕËø×´Ì¬»ò½â³ýÀä±ÕËø×´Ì¬
-#define FUNC_CODE_COLD_LOCK_MODIFY_TIMEOUT          0x2A    //ÉÏÎ»»úÉèÖÃÖ¸¶¨µÄÀä±ÕËøÌ×¼þµÄ³¬Ê±Ê±¼ä
-#define FUNC_CODE_COLD_LOCK_MODIFY_ADDR             0x23    //ÉÏÎ»»úÉèÖÃÖ¸¶¨µÄÀä±ÕËøÌ×¼þµÄµØÖ·
-#define FUNC_CODE_COLD_LOCK_MODIFY_SN               0x27    //ÉÏÎ»»úÉèÖÃÖ¸¶¨µÄÀä±ÕËøÌ×¼þµÄSNÂë
-#define FUNC_CODE_COLD_LOCK_PRODUCTION_QUERY        0x2F    //ÉÏÎ»»ú¶ÔÀä±ÕËøÌ×¼þÖ´ÐÐ³¬¼¶²éÑ¯ÃüÁî
+//å†·é—­é”å¥—ä»¶éƒ¨åˆ†é€šä¿¡è§„çº¦
+#define FUNC_CODE_COLD_LOCK_QUERY_ALL               0x21    //æŸ¥è¯¢å†·é—­é”å¥—ä»¶çš„åœ°å€ã€SNã€çŠ¶æ€
+#define FUNC_CODE_COLD_LOCK_CONTROL                 0x25    //å¯¹å†·é—­é”å¥—ä»¶è¿›è¡Œæ“ä½œï¼Œè¿›å…¥å†·é—­é”çŠ¶æ€æˆ–è§£é™¤å†·é—­é”çŠ¶æ€
+#define FUNC_CODE_COLD_LOCK_MODIFY_TIMEOUT          0x2A    //ä¸Šä½æœºè®¾ç½®æŒ‡å®šçš„å†·é—­é”å¥—ä»¶çš„è¶…æ—¶æ—¶é—´
+#define FUNC_CODE_COLD_LOCK_MODIFY_ADDR             0x23    //ä¸Šä½æœºè®¾ç½®æŒ‡å®šçš„å†·é—­é”å¥—ä»¶çš„åœ°å€
+#define FUNC_CODE_COLD_LOCK_MODIFY_SN               0x27    //ä¸Šä½æœºè®¾ç½®æŒ‡å®šçš„å†·é—­é”å¥—ä»¶çš„SNç 
+#define FUNC_CODE_COLD_LOCK_PRODUCTION_QUERY        0x2F    //ä¸Šä½æœºå¯¹å†·é—­é”å¥—ä»¶æ‰§è¡Œè¶…çº§æŸ¥è¯¢å‘½ä»¤
 /* ----------------------- FUNCTION CODE END --------------------------------------------*/
 
 typedef int (*p_function_handler)(data *frame);
@@ -33,8 +33,8 @@ typedef int (*p_function_handler)(data *frame);
 typedef struct {
 	uint8_t function_code;
 	p_function_handler handler;
-} protocol_handler;
+} protocol;
 
 
-extern protocol_handler *protocol_select(device_type type);
-#endif
+extern protocol *protocol_select(device_type type);
+#endif /* __PROTOCOL_H__ */
