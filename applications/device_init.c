@@ -12,10 +12,17 @@
 
 static device m_device;
 
+static int m_device_read(data *frame)
+{
+
+}
+
 static int m_device_init(device *device, device_type dev_type, channel_type ch_type)
 {
-    device->protocol = protocol_select(dev_type);
     device->channel = channel_select(ch_type);
+    device->protocol = protocol_select(dev_type);
+    device->channel->init();
+    device->protocol->init();
 
     return TRUE;
 }

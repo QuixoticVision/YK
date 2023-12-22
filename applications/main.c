@@ -15,8 +15,11 @@
 /* defined the LED pin: PC13 */
 #define LED0_PIN    GET_PIN(C, 13)
 
+//void feed_dog();
+
 int main(void)
 {
+    //rt_thread_idle_sethook(feed_dog);
     /* set LED pin mode to output */
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
 

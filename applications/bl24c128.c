@@ -8,4 +8,4 @@
  
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "eeprom.h"
+#include "bl24c128.h"

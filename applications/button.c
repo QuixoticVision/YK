@@ -62,7 +62,7 @@ static uint8_t common_btn_read(void *arg)
     return value;
 }
 
-static void common_btn_evt_cb(void *arg)
+static void button_event_cb(void *arg)
 {
     flex_button_t *btn = (flex_button_t *)arg;
 
@@ -98,7 +98,7 @@ static void user_button_init(void)
     {
         user_button[i].id = i;
         user_button[i].usr_button_read = common_btn_read;
-        user_button[i].cb = common_btn_evt_cb;
+        user_button[i].cb = button_event_cb;
         user_button[i].pressed_logic_level = 0;
         user_button[i].short_press_start_tick = FLEX_MS_TO_SCAN_CNT(1500);
         user_button[i].long_press_start_tick = FLEX_MS_TO_SCAN_CNT(3000);
@@ -106,6 +106,11 @@ static void user_button_init(void)
 
         flex_button_register(&user_button[i]);
     }
+}
+
+void bind_button_event_click(void (*callback) (void))
+{
+
 }
 
 int flex_button_main(void)

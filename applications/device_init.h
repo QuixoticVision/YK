@@ -6,8 +6,8 @@
 #include "channel.h"
 
 typedef struct {
-    protocol            *protocol;
     channel             *channel;
+    protocol            *protocol;
     func                callback;
 } device;
 

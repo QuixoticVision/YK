@@ -3,15 +3,13 @@
 
 #include "common.h"
 
-typedef int (*init_t)   (void);
-typedef void (*recv_t)  (void);
-typedef void (*send_t)  (data *frame);
+typedef int (*callback)  (data *frame);
 
 typedef struct {
-    int (*init)     (void);
-    int (*recv)     (rt_tick_t timeout);
-    int (*send)     (data *frame);
-    void *user_data;        //备用
+    int (*init)     (void);         //通道初始化
+    int (*recv)     (data *frame);  //数据接收
+    int (*send)     (data *frame);  //数据发送
+    void *user_data;                //备用
 } channel;
 
 typedef enum {

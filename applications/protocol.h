@@ -28,13 +28,19 @@
 #define FUNC_CODE_COLD_LOCK_PRODUCTION_QUERY        0x2F    //上位机对冷闭锁套件执行超级查询命令
 /* ----------------------- FUNCTION CODE END --------------------------------------------*/
 
-typedef int (*p_function_handler)(data *frame);
+#define PREFIX_LENTH                    	strlen("FUNC_CODE_")
+
 
 typedef struct {
-	uint8_t function_code;
-	p_function_handler handler;
+    uint8_t function_code;
+    data    *data;
+} info;
+
+typedef struct {
+    int (*init)    (void);
+    info *(*parser) (data *frame);
 } protocol;
 
+extern protocol *protocol_select(device_type dev_type);
 
-extern protocol *protocol_select(device_type type);
 #endif /* __PROTOCOL_H__ */
