@@ -13,7 +13,34 @@
         "name": "Applications",
         "files": [
           {
+            "path": "applications/bl24c128.c"
+          },
+          {
+            "path": "applications/button.c"
+          },
+          {
+            "path": "applications/channel.c"
+          },
+          {
+            "path": "applications/common.h"
+          },
+          {
+            "path": "applications/device_init.c"
+          },
+          {
+            "path": "applications/handler.c"
+          },
+          {
             "path": "applications/main.c"
+          },
+          {
+            "path": "applications/protocol.c"
+          },
+          {
+            "path": "applications/storage.c"
+          },
+          {
+            "path": "applications/utilities.c"
           }
         ],
         "folders": []
@@ -79,13 +106,13 @@
             "path": "rt-thread/components/drivers/core/device.c"
           },
           {
+            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
+          },
+          {
             "path": "rt-thread/components/drivers/i2c/i2c_core.c"
           },
           {
             "path": "rt-thread/components/drivers/i2c/i2c_dev.c"
-          },
-          {
-            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
           },
           {
             "path": "rt-thread/components/drivers/ipc/completion.c"
@@ -166,6 +193,15 @@
         "folders": []
       },
       {
+        "name": "flex_button",
+        "files": [
+          {
+            "path": "packages/FlexibleButton-latest/flexible_button.c"
+          }
+        ],
+        "folders": []
+      },
+      {
         "name": "Kernel",
         "files": [
           {
@@ -211,82 +247,82 @@
         "name": "Libraries",
         "files": [
           {
-            "path": "libraries/STM32L4xx_HAL/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_can.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_comp.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_crc_ex.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_crc.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cryp_ex.c"
-          },
-          {
             "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cryp.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_exti.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.c"
           },
           {
             "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c_ex.c"
           },
           {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c"
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c"
           },
           {
             "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c"
           },
           {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rng.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.c"
-          },
-          {
             "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.c"
           },
           {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c"
-          },
-          {
-            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c"
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.c"
           },
           {
             "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_usart_ex.c"
           },
           {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c"
+          },
+          {
             "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_usart.c"
           },
           {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cryp_ex.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_can.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_crc_ex.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c"
+          },
+          {
             "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_comp.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_exti.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rng.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_crc.c"
+          },
+          {
+            "path": "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c"
           }
         ],
         "folders": []
@@ -297,7 +333,7 @@
   "deviceName": null,
   "packDir": null,
   "miscInfo": {
-    "uid": "bd9d15fcd899957c2f548bc13904ca73"
+    "uid": "5dfcd4781790390606d549acc9a5bb0e"
   },
   "targets": {
     "rt-thread": {
@@ -432,28 +468,30 @@
       "custom_dep": {
         "name": "default",
         "incList": [
-          "rt-thread/components/drivers/include",
-          "rt-thread/libcpu/arm/common",
-          "rt-thread/libcpu/arm/cortex-m4",
-          "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Inc",
-          "board/cubemx/Core/Inc",
-          "rt-thread/components/libc/posix/ipc",
-          "rt-thread/components/libc/posix/io/poll",
-          "rt-thread/include",
-          "applications",
-          "rt-thread/components/libc/compilers/common/extension",
-          "rt-thread/components/libc/posix/io/eventfd",
-          "libraries/HAL_Drivers/config",
-          "rt-thread/components/finsh",
-          "rt-thread/components/libc/compilers/common/include",
-          "libraries/HAL_Drivers",
-          "board",
-          ".",
-          "libraries/HAL_Drivers/CMSIS/Include",
-          "rt-thread/components/libc/posix/io/epoll",
-          "libraries/STM32L4xx_HAL/CMSIS/Device/ST/STM32L4xx/Include",
           "rt-thread/components/libc/compilers/common/extension/fcntl/octal",
-          "RTE/_rt-thread"
+          "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Inc",
+          "rt-thread/components/drivers/include",
+          "rt-thread/components/libc/posix/io/epoll",
+          "rt-thread/components/finsh",
+          "rt-thread/include",
+          "rt-thread/components/libc/posix/io/eventfd",
+          "board",
+          "applications",
+          "libraries/HAL_Drivers/CMSIS/Include",
+          "rt-thread/components/libc/posix/io/poll",
+          "libraries/STM32L4xx_HAL/CMSIS/Device/ST/STM32L4xx/Include",
+          "rt-thread/components/libc/compilers/common/extension",
+          "rt-thread/components/libc/compilers/common/include",
+          "rt-thread/libcpu/arm/common",
+          ".",
+          "packages/FlexibleButton-latest",
+          "libraries/HAL_Drivers",
+          "rt-thread/libcpu/arm/cortex-m4",
+          "rt-thread/components/libc/posix/ipc",
+          "board/cubemx/Core/Inc",
+          "libraries/HAL_Drivers/config",
+          "RTE/_rt-thread",
+          ".eide/deps"
         ],
         "libList": [],
         "sourceDirList": [],
