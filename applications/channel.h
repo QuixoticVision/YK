@@ -3,20 +3,20 @@
 
 #include "common.h"
 
-typedef int (*callback)  (data *frame);
+typedef int (*callback)  (data_t *frame);
 
-typedef struct {
-    int (*init)     (void);         //通道初始化
-    int (*recv)     (data *frame);  //数据接收
-    int (*send)     (data *frame);  //数据发送
+struct channel {
+    int (*init) (struct device_lock *dev_lock);         //通道初始化
+    int (*read) (uint8_t *buff, uint8_t len);  //数据接收
+    int (*write) (uint8_t *data, size_t len);  //数据发送
     void *user_data;                //备用
-} channel;
+};
 
 typedef enum {
 	CHANNEL_HW_USING_CAN = 0,
 	CHANNEL_HW_USING_UART,
 } channel_type;
 
-extern channel *channel_select(channel_type type);
+extern struct channel *channel_select(channel_type type);
 
 #endif /* __CHANNEL_H__ */

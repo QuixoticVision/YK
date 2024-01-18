@@ -84,6 +84,7 @@
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 64
 #define RT_USING_CAN
+#define RT_CAN_USING_HDR
 #define RT_USING_I2C
 #define RT_I2C_DEBUG
 #define RT_USING_I2C_BITOPS

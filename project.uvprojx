@@ -337,7 +337,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, USE_HAL_DRIVER, RT_USING_LIBC, STM32L431xx, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__</Define>
               <Undefine></Undefine>
-              <IncludePath>rt-thread\components\libc\compilers\common\extension\fcntl\octal;libraries\STM32L4xx_HAL\STM32L4xx_HAL_Driver\Inc;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\epoll;rt-thread\components\finsh;rt-thread\include;rt-thread\components\libc\posix\io\eventfd;board;rt-thread\components\drivers\include;applications;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\poll;libraries\STM32L4xx_HAL\CMSIS\Device\ST\STM32L4xx\Include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\extension;rt-thread\components\libc\compilers\common\include;rt-thread\libcpu\arm\common;.;packages\FlexibleButton-latest;rt-thread\components\drivers\include;libraries\HAL_Drivers;rt-thread\libcpu\arm\cortex-m4;rt-thread\components\libc\posix\ipc;board\cubemx\Core\Inc;libraries\HAL_Drivers\config</IncludePath>
+              <IncludePath>rt-thread\components\libc\compilers\common\extension\fcntl\octal;libraries\STM32L4xx_HAL\STM32L4xx_HAL_Driver\Inc;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\epoll;rt-thread\components\finsh;rt-thread\include;rt-thread\components\libc\posix\io\eventfd;board;rt-thread\components\drivers\include;applications;libraries\HAL_Drivers\CMSIS\Include;rt-thread\libcpu\arm\cortex-m4;rt-thread\components\libc\posix\io\poll;libraries\STM32L4xx_HAL\CMSIS\Device\ST\STM32L4xx\Include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\extension;rt-thread\components\libc\compilers\common\include;rt-thread\libcpu\arm\common;.;packages\FlexibleButton-latest;bsp;rt-thread\components\drivers\include;libraries\HAL_Drivers;rt-thread\components\drivers\include;rt-thread\components\libc\posix\ipc;board\cubemx\Core\Inc;libraries\HAL_Drivers\config</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -392,9 +392,19 @@
               <FilePath>applications\storage.c</FilePath>
             </File>
             <File>
-              <FileName>handler.c</FileName>
+              <FileName>crc8.c</FileName>
               <FileType>1</FileType>
-              <FilePath>applications\handler.c</FilePath>
+              <FilePath>applications\crc8.c</FilePath>
+            </File>
+            <File>
+              <FileName>test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\test.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\main.c</FilePath>
             </File>
             <File>
               <FileName>utilities.c</FileName>
@@ -417,9 +427,9 @@
               <FilePath>applications\device_init.c</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>handler.c</FileName>
               <FileType>1</FileType>
-              <FilePath>applications\main.c</FilePath>
+              <FilePath>applications\handler.c</FilePath>
             </File>
             <File>
               <FileName>bl24c128.c</FileName>
@@ -427,9 +437,19 @@
               <FilePath>applications\bl24c128.c</FilePath>
             </File>
             <File>
-              <FileName>common.h</FileName>
+              <FileName>applications_common.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\applications\common.h</FilePath>
+              <FilePath>applications\common.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>bsp</GroupName>
+          <Files>
+            <File>
+              <FileName>channel_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>bsp\channel_can.c</FilePath>
             </File>
           </Files>
         </Group>

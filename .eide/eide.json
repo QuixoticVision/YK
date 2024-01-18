@@ -25,6 +25,9 @@
             "path": "applications/common.h"
           },
           {
+            "path": "applications/crc8.c"
+          },
+          {
             "path": "applications/device_init.c"
           },
           {
@@ -40,7 +43,19 @@
             "path": "applications/storage.c"
           },
           {
+            "path": "applications/test.c"
+          },
+          {
             "path": "applications/utilities.c"
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "bsp",
+        "files": [
+          {
+            "path": "bsp/channel_can.c"
           }
         ],
         "folders": []
@@ -106,13 +121,13 @@
             "path": "rt-thread/components/drivers/core/device.c"
           },
           {
-            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
-          },
-          {
             "path": "rt-thread/components/drivers/i2c/i2c_core.c"
           },
           {
             "path": "rt-thread/components/drivers/i2c/i2c_dev.c"
+          },
+          {
+            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
           },
           {
             "path": "rt-thread/components/drivers/ipc/completion.c"
@@ -457,8 +472,8 @@
         "bin": "",
         "baseAddr": "",
         "cpuInfo": {
-          "vendor": "null",
-          "cpuName": "null"
+          "vendor": "ST",
+          "cpuName": "STM32L431RC"
         },
         "proType": 1,
         "speed": 8000,
@@ -478,6 +493,7 @@
           "board",
           "applications",
           "libraries/HAL_Drivers/CMSIS/Include",
+          "rt-thread/libcpu/arm/cortex-m4",
           "rt-thread/components/libc/posix/io/poll",
           "libraries/STM32L4xx_HAL/CMSIS/Device/ST/STM32L4xx/Include",
           "rt-thread/components/libc/compilers/common/extension",
@@ -485,13 +501,12 @@
           "rt-thread/libcpu/arm/common",
           ".",
           "packages/FlexibleButton-latest",
+          "bsp",
           "libraries/HAL_Drivers",
-          "rt-thread/libcpu/arm/cortex-m4",
           "rt-thread/components/libc/posix/ipc",
           "board/cubemx/Core/Inc",
           "libraries/HAL_Drivers/config",
-          "RTE/_rt-thread",
-          ".eide/deps"
+          "RTE/_rt-thread"
         ],
         "libList": [],
         "sourceDirList": [],

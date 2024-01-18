@@ -5,10 +5,19 @@
 #include "protocol.h"
 #include "channel.h"
 
-typedef struct {
-    channel             *channel;
-    protocol            *protocol;
-    func                callback;
-} device;
+/* 设备信息：设备地址 SN码 设备类型 */
+struct device_info {
+    uint8_t addr;
+    uint8_t sn[3];
+    uint8_t id;
+    device_type type;
+};
+
+/* 锁设备类型定义 */
+struct device_lock {
+    struct device_info info;
+    struct channel *channel;
+    protocol *protocol;
+};
 
 #endif /* __DEVICE_INIT_H__ */

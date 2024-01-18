@@ -10,29 +10,23 @@
 #include <rtdevice.h>
 #include <device_init.h>
 
-static device m_device;
+static struct device_lock dev_lock;
 
-static int m_device_read(data *frame)
+static struct device_lock *device_init(device_type dev_type, channel_type ch_type, uint8_t addr, uint8_t *sn)
 {
+    struct device_lock *dev = &dev_lock;
+    dev->info.addr = addr;
+    memcpy(dev->info.sn, sn, 3);
 
+    dev->channel = channel_select(ch_type);
+
+    dev->protocol = protocol_select(dev_type);
+    dev->protocol->init();
+
+    return dev;
 }
 
-static int m_device_init(device *device, device_type dev_type, channel_type ch_type)
+struct device_lock *get_device_lock_handler(void)
 {
-    device->channel = channel_select(ch_type);
-    device->protocol = protocol_select(dev_type);
-    device->channel->init();
-    device->protocol->init();
-
-    return TRUE;
+    return &dev_lock;
 }
-
-device *device_select(device_type dev_type, channel_type ch_type)
-{
-    device *p_dev = &m_device;
-    m_device_init(p_dev, dev_type, ch_type);
-
-    return p_dev;
-}
-
-

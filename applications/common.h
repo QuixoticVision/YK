@@ -2,6 +2,20 @@
 #define __COMMON_H__
 
 #include <rtthread.h>
+#include <rtdbg.h>
+#include <string.h>
+#include <stdio.h>
+
+#define DEBUG_ENABLE                    1
+#if DEBUG_ENABLE
+#define M_PRINTF                        rt_kprintf
+#define M_LOG_I                         LOG_I
+#define M_LOG_E                         LOG_E
+#else
+#define M_PRINTF(...)                   do {} while(0)
+#define M_LOG_I(...)                    do {} while(0)
+#define M_LOG_E(...)                    do {} while(0)
+#endif
 
 #define TRUE                            1
 #define FALSE                           0
@@ -20,8 +34,8 @@ typedef enum {
 } device_type;
 
 typedef struct {
-	uint8_t *p_data;
+	uint8_t *data;
 	uint32_t len;
-} data;
+} data_t;
 
 #endif /* __COMMON_H__ */

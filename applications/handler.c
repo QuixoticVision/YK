@@ -17,25 +17,25 @@
 #define THREAD_HANDLER_TICK                     10
 static void thread_handler_entry(void *para);
 
-static int func_yk_query_state(data *frame);
-static int func_yk_control(data *frame);
-static int func_yk_modify_sn(data *frame);
-static int func_yk_report_state(data *frame);
-static int func_yk_production_modify_sn(data *frame);
+static int func_yk_query_state(data_t *frame);
+static int func_yk_control(data_t *frame);
+static int func_yk_modify_sn(data_t *frame);
+static int func_yk_report_state(data_t *frame);
+static int func_yk_production_modify_sn(data_t *frame);
 
-static int func_avc_query_state(data *frame);
-static int func_avc_control_uppper(data *frame);
-static int func_avc_control_lower(data *frame);
-static int func_avc_modify_addr_type(data *frame);
-static int func_avc_modify_sn(data *frame);
-static int func_avc_production_query(data *frame);
+static int func_avc_query_state(data_t *frame);
+static int func_avc_control_uppper(data_t *frame);
+static int func_avc_control_lower(data_t *frame);
+static int func_avc_modify_addr_type(data_t *frame);
+static int func_avc_modify_sn(data_t *frame);
+static int func_avc_production_query(data_t *frame);
 
-static int func_cold_lock_query_all(data *frame);
-static int func_cold_lock_control(data *frame);
-static int func_cold_lock_modify_timeout(data *frame);
-static int func_cold_lock_modify_addr(data *frame);
-static int func_cold_lock_modify_sn(data *frame);
-static int func_cold_lock_production_query(data *frame);
+static int func_cold_lock_query_all(data_t *frame);
+static int func_cold_lock_control(data_t *frame);
+static int func_cold_lock_modify_timeout(data_t *frame);
+static int func_cold_lock_modify_addr(data_t *frame);
+static int func_cold_lock_modify_sn(data_t *frame);
+static int func_cold_lock_production_query(data_t *frame);
 
 static protocol_handler_table protocol_handler_set[] = {
     {FUNC_CODE_YK_QUERY_STATE               , func_yk_query_state               },
@@ -62,94 +62,94 @@ static protocol_handler_table protocol_handler_set[] = {
 
 
 //YK
-static int func_yk_query_state(data *frame)
+static int func_yk_query_state(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_yk_control(data *frame)
+static int func_yk_control(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_yk_modify_sn(data *frame)
+static int func_yk_modify_sn(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_yk_report_state(data *frame)
+static int func_yk_report_state(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_yk_production_modify_sn(data *frame)
+static int func_yk_production_modify_sn(data_t *frame)
 {
     return RT_EOK;
 }
 
 //AVC
-static int func_avc_query_state(data *frame)
+static int func_avc_query_state(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_avc_control_uppper(data *frame)
+static int func_avc_control_uppper(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_avc_control_lower(data *frame)
+static int func_avc_control_lower(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_avc_modify_addr_type(data *frame)
+static int func_avc_modify_addr_type(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_avc_modify_sn(data *frame)
+static int func_avc_modify_sn(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_avc_production_query(data *frame)
+static int func_avc_production_query(data_t *frame)
 {
     return RT_EOK;
 }
 
 //COLD-LOCK
-static int func_cold_lock_query_all(data *frame)
+static int func_cold_lock_query_all(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_control(data *frame)
+static int func_cold_lock_control(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_modify_timeout(data *frame)
+static int func_cold_lock_modify_timeout(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_modify_addr(data *frame)
+static int func_cold_lock_modify_addr(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_modify_sn(data *frame)
+static int func_cold_lock_modify_sn(data_t *frame)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_production_query(data *frame)
+static int func_cold_lock_production_query(data_t *frame)
 {
     return RT_EOK;
 }
 
-static uint8_t get_function_code(data *frame)
+static uint8_t get_function_code(data_t *frame)
 {
     
     return 0;

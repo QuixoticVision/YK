@@ -33,12 +33,12 @@
 
 typedef struct {
     uint8_t function_code;
-    data    *data;
+    data_t    *data;
 } info;
 
 typedef struct {
     int (*init)    (void);
-    info *(*parser) (data *frame);
+    info *(*parser) (data_t *frame);
 } protocol;
 
 extern protocol *protocol_select(device_type dev_type);

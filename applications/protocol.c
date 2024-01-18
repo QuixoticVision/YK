@@ -40,8 +40,8 @@ static uint8_t protocol_set_cold_lock[] = {
     FUNC_CODE_COLD_LOCK_PRODUCTION_QUERY,
 };
 
-static uint8_t get_function_code(data *frame);
-static data *get_data(data *frame);
+static uint8_t get_function_code(data_t *frame);
+static data_t *get_data(data_t *frame);
 
 
 static int protocol_init(void)
@@ -49,16 +49,16 @@ static int protocol_init(void)
     
 }
 
-static void protocol_analysis_code_data(data *frame, uint8_t *code, data *data)
+static void protocol_analysis_code_data(data_t *frame, uint8_t *code, data_t *data)
 {
 
 }
 
-static info *protocol_parser(data *frame)
+static info *protocol_parser(data_t *frame)
 {
     int size = ARRAY_SIZE(current_protocol_set);
     uint8_t code;
-    data data;
+    data_t data;
     protocol_analysis_code_data(frame, &code, &data);
     
     for (int i = 0; i < size; i++) {

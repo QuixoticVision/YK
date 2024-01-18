@@ -12,7 +12,7 @@
 #include "flexible_button.h"
 
 #ifndef PIN_KEY0
-#define PIN_KEY0 GET_PIN(D, 10)
+#define PIN_KEY0 NULL
 #endif
 
 #define ENUM_TO_STR(e) (#e)
