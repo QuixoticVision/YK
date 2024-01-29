@@ -3,158 +3,227 @@
  *
  * Change Logs:
  * Date           Author       LYX
- * 2023-12-18     RiceChen    first edition
+ * 2023-12-18     LYX          first edition
  */
  
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "handler.h"
 #include "protocol.h"
+#include "handler.h"
+#include "operations.h"
+#include "crc8.h"
 
-#define THREAD_HANDLER_NAME                     "handler"
-#define THREAD_HANDLER_STACK_SIZE               1024
-#define THREAD_HANDLER_PRIORITIY                5
-#define THREAD_HANDLER_TICK                     10
-static void thread_handler_entry(void *para);
+static int func_yk_query_state(uint8_t *data, size_t len);
+static int func_yk_control(uint8_t *data, size_t len);
+static int func_yk_modify_addr(uint8_t *data, size_t len);
+static int func_yk_report_state(uint8_t *data, size_t len);
+static int func_yk_production_modify_sn(uint8_t *data, size_t len);
 
-static int func_yk_query_state(data_t *frame);
-static int func_yk_control(data_t *frame);
-static int func_yk_modify_sn(data_t *frame);
-static int func_yk_report_state(data_t *frame);
-static int func_yk_production_modify_sn(data_t *frame);
+static int func_avc_query_state(uint8_t *data, size_t len);
+static int func_avc_control_engage(uint8_t *data, size_t len);
+static int func_avc_control_disengage(uint8_t *data, size_t len);
+static int func_avc_modify_addr_type(uint8_t *data, size_t len);
+static int func_avc_modify_sn(uint8_t *data, size_t len);
+static int func_avc_production_query(uint8_t *data, size_t len);
 
-static int func_avc_query_state(data_t *frame);
-static int func_avc_control_uppper(data_t *frame);
-static int func_avc_control_lower(data_t *frame);
-static int func_avc_modify_addr_type(data_t *frame);
-static int func_avc_modify_sn(data_t *frame);
-static int func_avc_production_query(data_t *frame);
+static int func_cold_lock_query_all(uint8_t *data, size_t len);
+static int func_cold_lock_control(uint8_t *data, size_t len);
+static int func_cold_lock_modify_timeout(uint8_t *data, size_t len);
+static int func_cold_lock_modify_addr(uint8_t *data, size_t len);
+static int func_cold_lock_modify_sn(uint8_t *data, size_t len);
+static int func_cold_lock_production_query(uint8_t *data, size_t len);
 
-static int func_cold_lock_query_all(data_t *frame);
-static int func_cold_lock_control(data_t *frame);
-static int func_cold_lock_modify_timeout(data_t *frame);
-static int func_cold_lock_modify_addr(data_t *frame);
-static int func_cold_lock_modify_sn(data_t *frame);
-static int func_cold_lock_production_query(data_t *frame);
-
-static protocol_handler_table protocol_handler_set[] = {
-    {FUNC_CODE_YK_QUERY_STATE               , func_yk_query_state               },
-    {FUNC_CODE_YK_CONTROL                   , func_yk_control                   },
-    {FUNC_CODE_YK_MODIFY_SN                 , func_yk_modify_sn                 },
-    {FUNC_CODE_YK_REPORT_STATE              , func_yk_report_state              },
-    {FUNC_CODE_YK_PRODUCTION_MODIFY_SN      , func_yk_production_modify_sn      },
+static handler_t handler[] = {
+    func_yk_query_state,
+    func_yk_control,
+    func_yk_modify_addr,
+    func_yk_report_state,
+    func_yk_production_modify_sn,
     
-    {FUNC_CODE_AVC_QUERY_STATE				, func_avc_query_state              },
-    {FUNC_CODE_AVC_CONTROL_UPPER            , func_avc_control_uppper           },
-    {FUNC_CODE_AVC_CONTROL_LOWER            , func_avc_control_lower            },
-    {FUNC_CODE_AVC_MODIFY_ADDR_TYPE			, func_avc_modify_addr_type         },
-    {FUNC_CODE_AVC_MODIFY_SN                , func_avc_modify_sn                },
-    {FUNC_CODE_AVC_PRODUCTION_QUERY			, func_avc_production_query         },
+    func_avc_query_state,
+    func_avc_control_engage,
+    func_avc_control_disengage,
+    func_avc_modify_addr_type,
+    func_avc_modify_sn,
+    func_avc_production_query,
     
-    {FUNC_CODE_COLD_LOCK_QUERY_ALL			, func_cold_lock_query_all          },
-    {FUNC_CODE_COLD_LOCK_CONTROL            , func_cold_lock_control            },
-    {FUNC_CODE_COLD_LOCK_MODIFY_TIMEOUT		, func_cold_lock_modify_timeout     },
-    {FUNC_CODE_COLD_LOCK_MODIFY_ADDR		, func_cold_lock_modify_addr        },
-    {FUNC_CODE_COLD_LOCK_MODIFY_SN			, func_cold_lock_modify_sn          },
-    {FUNC_CODE_COLD_LOCK_PRODUCTION_QUERY	, func_cold_lock_production_query   },
+    func_cold_lock_query_all,
+    func_cold_lock_control,
+    func_cold_lock_modify_timeout,
+    func_cold_lock_modify_addr,
+    func_cold_lock_modify_sn,
+    func_cold_lock_production_query,
 };
 
-
+static struct {
+    struct channel *channel;
+    struct lock_operations *operation;
+} self;
 
 //YK
-static int func_yk_query_state(data_t *frame)
+/* 0x01 */
+static int func_yk_query_state(uint8_t *data, size_t len)
 {
+    uint8_t buff[11];
+    memset(buff, 0, ARRAY_SIZE(buff));
+
+    buff[3] = 0x06;
+    buff[4] = 0x01;
+    buff[5] = self.operation->get_addr();
+    uint32_t sn = self.operation->get_sn();
+    buff[6] = sn >> 0;
+    buff[7] = sn >> 8;
+    buff[8] = sn >> 16;
+    buff[9] = self.operation->query_state();
+    buff[10] = crc8(buff, ARRAY_SIZE(buff) - 1);
+
+    self.channel->write(buff, ARRAY_SIZE(buff));
+
     return RT_EOK;
 }
 
-static int func_yk_control(data_t *frame)
+/* 0x02 */
+static int func_yk_control(uint8_t *data, size_t len)
 {
+    self.operation->control(CONTROL_YK_STATE, &data[1]);
+    uint8_t buff[8];
+    memset(buff, 0, ARRAY_SIZE(buff));
+
+    buff[3] = 0x03;
+    buff[4] = 0x02;
+    buff[5] = self.operation->get_addr();
+    buff[6] = self.operation->query_state();
+    buff[7] = crc8(buff, ARRAY_SIZE(buff) - 1);
+
+    self.channel->write(buff, ARRAY_SIZE(buff));
+    
     return RT_EOK;
 }
 
-static int func_yk_modify_sn(data_t *frame)
+/* 0x03 */
+static int func_yk_modify_addr(uint8_t *data, size_t len)
 {
+    uint8_t addr = self.operation->get_addr();
+    uint32_t sn = self.operation->get_sn();
+
+    if (addr != data[1]) {
+        return RT_ERROR;    //地址不匹配
+    }
+
+    if (sn != ((uint32_t)(data[2] << 16) + (uint32_t)(data[1] << 8) + (uint32_t)(data[0] << 0))) {
+        return RT_ERROR;    //SN不匹配
+    }
+
+    self.operation->modify_addr(data[1]);
+
     return RT_EOK;
 }
 
-static int func_yk_report_state(data_t *frame)
+/* 0x04 */
+static int func_yk_report_state(uint8_t *data, size_t len)
 {
+    uint8_t buff[11];
+    memset(buff, 0, ARRAY_SIZE(buff));
+
+    buff[3] = 0x06;
+    buff[4] = 0x04;
+    buff[5] = self.operation->get_addr();
+    uint32_t sn = self.operation->get_sn();
+    buff[6] = sn >> 0;
+    buff[7] = sn >> 8;
+    buff[8] = sn >> 16;
+    buff[9] = self.operation->query_state();
+    buff[10] = crc8(buff, ARRAY_SIZE(buff) - 1);
+
+    self.channel->write(buff, ARRAY_SIZE(buff));
+
     return RT_EOK;
 }
 
-static int func_yk_production_modify_sn(data_t *frame)
+static int func_yk_production_modify_sn(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
 //AVC
-static int func_avc_query_state(data_t *frame)
+/* 0x31 */
+static int func_avc_query_state(uint8_t *data, size_t len)
+{
+    uint8_t buff[11];
+    memset(buff, 0, ARRAY_SIZE(buff));
+
+    buff[3] = 0x06;
+    buff[4] = 0x04;
+    buff[5] = self.operation->get_addr();
+    uint32_t sn = self.operation->get_sn();
+    buff[6] = sn >> 0;
+    buff[7] = sn >> 8;
+    buff[8] = sn >> 16;
+    buff[9] = self.operation->query_state();
+    buff[10] = crc8(buff, ARRAY_SIZE(buff) - 1);
+
+    self.channel->write(buff, ARRAY_SIZE(buff));
+
+    return RT_EOK;
+}
+
+/* 0x35 */
+static int func_avc_control_engage(uint8_t *data, size_t len)
+{
+    self.operation->control(CONTROL_AVC_ENGAGE, NULL);
+    return RT_EOK;
+}
+
+static int func_avc_control_disengage(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_avc_control_uppper(data_t *frame)
+static int func_avc_modify_addr_type(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_avc_control_lower(data_t *frame)
+static int func_avc_modify_sn(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_avc_modify_addr_type(data_t *frame)
-{
-    return RT_EOK;
-}
-
-static int func_avc_modify_sn(data_t *frame)
-{
-    return RT_EOK;
-}
-
-static int func_avc_production_query(data_t *frame)
+static int func_avc_production_query(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
 //COLD-LOCK
-static int func_cold_lock_query_all(data_t *frame)
+static int func_cold_lock_query_all(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_control(data_t *frame)
+static int func_cold_lock_control(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_modify_timeout(data_t *frame)
+static int func_cold_lock_modify_timeout(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_modify_addr(data_t *frame)
+static int func_cold_lock_modify_addr(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_modify_sn(data_t *frame)
+static int func_cold_lock_modify_sn(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
 
-static int func_cold_lock_production_query(data_t *frame)
+static int func_cold_lock_production_query(uint8_t *data, size_t len)
 {
     return RT_EOK;
 }
-
-static uint8_t get_function_code(data_t *frame)
-{
-    
-    return 0;
-}
-
 
 void thread_handler_entry(void *para)
 {
@@ -163,26 +232,14 @@ void thread_handler_entry(void *para)
     }
 }
 
-static int handler_init(void)
+handler_t *get_handler_table(void)
 {
-    rt_thread_t thread;
-    thread = rt_thread_create(
-        THREAD_HANDLER_NAME,
-        thread_handler_entry,
-        NULL,
-        THREAD_HANDLER_STACK_SIZE,
-        THREAD_HANDLER_PRIORITIY,
-        THREAD_HANDLER_TICK
-    );
-    if (thread == NULL) {
-        rt_kprintf("thread %s create fail!", THREAD_HANDLER_NAME);
-        return RT_ERROR;
-    }
-    rt_thread_startup(thread);
-    return RT_EOK;
+    return handler;
 }
 
-int handler_entry(info *info)
+int handler_init(struct channel *current_channel)
 {
-    return 0;
+    self.channel = current_channel;
+    self.operation = get_lock_operations();
+    return RT_EOK;
 }

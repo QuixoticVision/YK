@@ -2,7 +2,6 @@
 #define __COMMON_H__
 
 #include <rtthread.h>
-#include <rtdbg.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -26,16 +25,33 @@
 typedef void (*func) (void);
 
 typedef enum {
-    YK_LOCK,        //YK锁
+    YK_LOCK = 0,    //YK锁
     YK_COLD_LOCK,   //冷闭锁
     AVC,            //AVC
     AVC_COLD_LOCK,  //AVC冷闭锁
-    AVC_SWITCH      //AVC开关
+    AVC_SWITCH,     //AVC开关
+    DEVICE_TYPE_MAX
 } device_type;
+
+typedef enum {
+	CHANNEL_HW_USING_CAN = 0,
+	CHANNEL_HW_USING_UART,
+} channel_type;
+
+/* 设备信息：设备地址 SN码 设备类型 */
+struct device_info {
+    uint8_t dev_id; //设备ID
+    uint8_t net_id; //CAN网区号
+    uint8_t addr;   //设备地址
+    uint32_t sn;  //SN号
+    device_type dev_type;       //设备类型
+    channel_type channel_type;  //通道类型
+};
 
 typedef struct {
 	uint8_t *data;
 	uint32_t len;
 } data_t;
+
 
 #endif /* __COMMON_H__ */

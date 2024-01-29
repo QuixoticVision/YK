@@ -3,12 +3,12 @@
  *
  * Change Logs:
  * Date           Author       LYX
- * 2023-12-18     RiceChen    first edition
+ * 2023-12-18     LYX          first edition
  */
 
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "channel_can.h"
+#include "can_channel.h"
 
 #define DBG_TAG                 "can"
 #define DBG_LVL                 DBG_LOG
@@ -42,9 +42,7 @@ struct rx_ring_buffer {
     struct rt_can_msg buff[CAN_RX_BUFF_MAX_LEN];
 };
 
-static struct channel_can_ops can_ops;
-static struct channel_can channel_can;
-
+static struct can_channel can_channel;
 static struct rx_ring_buffer ring_buffer;
 
 static void ring_buffer_init(struct rx_ring_buffer *buffer)
@@ -83,92 +81,61 @@ static int read_ring_buffer(struct rx_ring_buffer *buffer, struct rt_can_msg *da
 static rt_err_t can_rx_call(rt_device_t dev, rt_size_t size)
 {
     /* CAN 接收到数据后产生中断，调用此回调函数，然后发送接收信号量 */
-    rt_sem_release(channel_can.sem);
-    M_PRINTF("can rx interrupt, size: %dbytes\n", size);
+    rt_sem_release(can_channel.sem);
     return RT_EOK;
 }
 
-static int can_channel_init(struct device_lock *dev_lock)
+static int can_channel_open(const struct device_info *info)
 {
     rt_err_t res;
-    rt_thread_t thread;
-    rt_device_t dev;
-    rt_sem_t rx_sem;
-
-    dev = rt_device_find("can1");
-    if (dev == NULL) {
-        M_LOG_E("find can1 failed!\n");
-        return RT_ERROR;
-    }
-    channel_can.dev = dev;
-
-    rx_sem = rt_sem_create("rx sem", 0, RT_IPC_FLAG_FIFO);
-    if (rx_sem == NULL) {
-        M_LOG_E("create can rx sem failed!\n");
-        return RT_ERROR;
-    }
-    channel_can.sem = rx_sem;
-
-    ring_buffer_init(&ring_buffer);
+    static rt_thread_t thread;
+    rt_device_t dev = can_channel.dev;
 
     res = rt_device_open(dev, RT_DEVICE_FLAG_INT_TX | RT_DEVICE_FLAG_INT_RX);
     RT_ASSERT(res == RT_EOK);
 
+#ifdef RT_CAN_USING_HDR
+    if (info) {
+        uint32_t id = (uint32_t)(info->addr << 0) + (uint32_t)(info->net_id << 8) + (uint32_t)(info->dev_id << 16);
+        M_PRINTF("can filter: 0x%08x\n", id);
+        struct rt_can_filter_item items[] = {
+            RT_CAN_FILTER_EXT_INIT(id, NULL, NULL),
+        };
+        struct rt_can_filter_config cfg = {1, 1, items}; /* 一共有 1 个过滤表 */
+        /* 设置硬件过滤表 */
+        res = rt_device_control(dev, RT_CAN_CMD_SET_FILTER, &cfg);
+        RT_ASSERT(res == RT_EOK);
+    }
+#endif
+    if (thread != NULL) {
+        return RT_EOK;
+    }
     thread = rt_thread_create(
         THREAD_CAN_RX_NAME,
         thread_can_rx,
-        &dev_lock->info,
+        NULL,
         THREAD_CAN_RX_STACK_SIZE,
         THREAD_CAN_RX_PRIORITIY,
         THREAD_CAN_RX_TICK);
-    if (thread != RT_NULL) {
-        rt_thread_startup(thread);
-    } else {
+    if (thread == RT_NULL) {
         M_LOG_E("create can_rx thread failed!\n");
+        return -RT_ERROR;
     }
+    rt_thread_startup(thread);
 
     return RT_EOK;
 }
 
 static void thread_can_rx(void *parameter)
 {
-    int i, res;
-    
-    rt_device_t dev = channel_can.dev;
-    rt_sem_t rx_sem = channel_can.sem;
+    rt_device_t dev = can_channel.dev;
+    rt_sem_t rx_sem = can_channel.sem;
     struct rt_can_msg rx_msg;
 
     /* 设置接收回调函数 */
     rt_device_set_rx_indicate(dev, can_rx_call);
     rt_device_control(dev, RT_CAN_CMD_SET_BAUD, (void *)CAN20kBaud);
 
-#ifdef RT_CAN_USING_HDR
-    // struct rt_can_filter_item items[5] = {
-    //         RT_CAN_FILTER_ITEM_INIT(0x100, 0, 0, 0, 0x700, RT_NULL, RT_NULL), /* std,match ID:0x100~0x1ff，hdr 为 - 1，设置默认过滤表 */
-    //         RT_CAN_FILTER_ITEM_INIT(0x300, 0, 0, 0, 0x700, RT_NULL, RT_NULL), /* std,match ID:0x300~0x3ff，hdr 为 - 1 */
-    //         RT_CAN_FILTER_ITEM_INIT(0x211, 0, 0, 0, 0x7ff, RT_NULL, RT_NULL), /* std,match ID:0x211，hdr 为 - 1 */
-    //         RT_CAN_FILTER_STD_INIT(0x486, RT_NULL, RT_NULL),                  /* std,match ID:0x486，hdr 为 - 1 */
-    //         {
-    //             0x555,
-    //             0,
-    //             0,
-    //             0,
-    //             0x7ff,
-    //             7,
-    //         } /* std,match ID:0x555，hdr 为 7，指定设置 7 号过滤表 */
-    //     };
-    struct device_info *info = parameter;
-    if (info) {
-        uint16_t id = info->id + info->addr << 16;
-        struct rt_can_filter_item items[] = {
-            RT_CAN_FILTER_EXT_INIT(0x010203, NULL, NULL),
-        };
-        struct rt_can_filter_config cfg = {1, 1, items}; /* 一共有 5 个过滤表 */
-        /* 设置硬件过滤表 */
-        res = rt_device_control(dev, RT_CAN_CMD_SET_FILTER, &cfg);
-        RT_ASSERT(res == RT_EOK);
-    }
-#endif
     while (1) {
         /* hdr 值为 - 1，表示直接从 uselist 链表读取数据 */
         rx_msg.hdr_index = -1;
@@ -176,8 +143,40 @@ static void thread_can_rx(void *parameter)
         rt_sem_take(rx_sem, RT_WAITING_FOREVER);
         rt_device_read(dev, 0, &rx_msg, sizeof(rx_msg));
         write_ring_buffer(&ring_buffer, &rx_msg);
-        channel_can.rx_callback(ring_buffer.buff[ring_buffer.head].len + 3);
+        if (can_channel.rx_callback != NULL)
+            can_channel.rx_callback(ring_buffer.buff[ring_buffer.head].len + 3, can_channel.parameter);
     }
+}
+
+static int can_channel_read(uint8_t *buff, size_t len)
+{
+    size_t size;
+    struct rt_can_msg rx_msg;
+
+    if (len < 3) {
+        return 0;
+    }
+
+    if (read_ring_buffer(&ring_buffer, &rx_msg)) {
+        return 0;
+    }
+    //低位在前
+    buff[0] = (uint8_t)(rx_msg.id >> 16);
+    buff[1] = (uint8_t)(rx_msg.id >> 8);
+    buff[2] = (uint8_t)(rx_msg.id >> 0);
+    for (size = 3; size < len && size < rx_msg.len + 3; size++) {
+        buff[size] = rx_msg.data[size - 3];
+    }
+
+    // M_PRINTF("\n================ row data =================\n");
+    // M_LOG_I("ID:%x", rx_msg.id);
+    // M_PRINTF("%dbytes: ", rx_msg.len);
+    // for (int i = 0; i < len - 3; i++) {
+    //     M_PRINTF("0x%02x ", rx_msg.data[i]);
+    // }
+    // M_PRINTF("\n================ row data =================\n");
+    
+    return size;
 }
 
 static int can_channel_write(uint8_t *data, size_t len)
@@ -190,7 +189,7 @@ static int can_channel_write(uint8_t *data, size_t len)
     }
 
     struct rt_can_msg tx_msg = CAN_TX_DEFAULT_MESSAGE;
-    rt_device_t dev = channel_can.dev;
+    rt_device_t dev = can_channel.dev;
 
     tx_msg.id = (uint32_t)(data[0] << 0) + (uint32_t)(data[1] << 8) + (uint32_t)(data[2] << 16);
     tx_msg.len = len - 3;
@@ -211,50 +210,41 @@ static int can_channel_write(uint8_t *data, size_t len)
     return size;
 }
 
-static int can_channel_read(uint8_t *buff, uint8_t len)
+int can_channel_init(struct channel *channel)
 {
-    size_t size;
-    rt_device_t dev = channel_can.dev;
-    struct rt_can_msg rx_msg;
+    rt_device_t dev;
+    rt_sem_t rx_sem;
 
-    if (len < 3) {
-        return 0;
+    if (can_channel.dev == NULL) {
+        dev = rt_device_find("can1");
+        if (dev == NULL) {
+            M_LOG_E("find can1 failed!\n");
+            return RT_ERROR;
+        }
+        can_channel.dev = dev;
     }
 
-    read_ring_buffer(&ring_buffer, &rx_msg);
-    buff[0] = (uint8_t)(rx_msg.id >> 0);
-    buff[1] = (uint8_t)(rx_msg.id >> 8);
-    buff[2] = (uint8_t)(rx_msg.id >> 16);
-    for (size = 0; size < len - 3 && size < rx_msg.len; size++) {
-        buff[3 + size] = rx_msg.data[size];
+    if (can_channel.sem == NULL) {
+        rx_sem = rt_sem_create("can rx", 0, RT_IPC_FLAG_FIFO);
+        if (rx_sem == NULL) {
+            M_LOG_E("create can rx sem failed!\n");
+            return RT_ERROR;
+        }
+        can_channel.sem = rx_sem;
     }
 
-    M_LOG_I("ID:%x", rx_msg.id);
-    M_PRINTF("%dbytes: ", rx_msg.len);
-    for (int i = 0; i < len - 3; i++) {
-        M_PRINTF("0x%02x ", rx_msg.data[i]);
-    }
-    M_PRINTF("\n");
-    return size;
-}
+    ring_buffer_init(&ring_buffer);
 
-static int can_ops_init(void)
-{
-    memset(&channel_can, 0, sizeof(channel_can));
-    can_ops.init = can_channel_init;
-    can_ops.write = can_channel_write;
-    can_ops.read = can_channel_read;
+    channel->open = can_channel_open;
+    channel->read = can_channel_read;
+    channel->write = can_channel_write;
 
     return RT_EOK;
 }
-INIT_ENV_EXPORT(can_ops_init);
 
-void set_can_rx_callback(int (*rx_callback) (size_t size))
+void set_can_rx_callback(int (*rx_callback) (size_t len, void *parameter), void *parameter)
 {
-    channel_can.rx_callback = rx_callback;
+    can_channel.parameter = parameter;
+    can_channel.rx_callback = rx_callback;
 }
 
-struct channel_can_ops *get_can_ops_handler(void)
-{
-    return &can_ops;
-}

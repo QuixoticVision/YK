@@ -7,7 +7,15 @@
     "settings": {
         "files.associations": {
             "device_type.h": "c",
-            "channel.h": "c"
+            "channel.h": "c",
+            "handler.h": "c",
+            "crc8.h": "c",
+            "protocol.h": "c",
+            "device_init.h": "c",
+            "rtthread.h": "c",
+            "can_channel.h": "c",
+            "rtdevice.h": "c",
+            "common.h": "c"
         }
     },
     "extensions": {}

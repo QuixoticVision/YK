@@ -6,10 +6,10 @@
     ],
     "settings": {
         "files.associations": {
-            "channel_can.h": "c",
-            "common.h": "c",
-            "channel.h": "c",
-            "rtdbg.h": "c"
+            "operations.h": "c",
+            "device_init.h": "c",
+            "rtdevice.h": "c",
+            "rtthread.h": "c"
         }
     },
     "extensions": {}

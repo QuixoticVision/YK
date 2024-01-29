@@ -22,9 +22,6 @@
             "path": "applications/channel.c"
           },
           {
-            "path": "applications/common.h"
-          },
-          {
             "path": "applications/crc8.c"
           },
           {
@@ -37,6 +34,9 @@
             "path": "applications/main.c"
           },
           {
+            "path": "applications/operations.c"
+          },
+          {
             "path": "applications/protocol.c"
           },
           {
@@ -44,9 +44,6 @@
           },
           {
             "path": "applications/test.c"
-          },
-          {
-            "path": "applications/utilities.c"
           }
         ],
         "folders": []
@@ -55,7 +52,10 @@
         "name": "bsp",
         "files": [
           {
-            "path": "bsp/channel_can.c"
+            "path": "bsp/can_channel.c"
+          },
+          {
+            "path": "bsp/uart_channel.c"
           }
         ],
         "folders": []
@@ -121,13 +121,13 @@
             "path": "rt-thread/components/drivers/core/device.c"
           },
           {
+            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
+          },
+          {
             "path": "rt-thread/components/drivers/i2c/i2c_core.c"
           },
           {
             "path": "rt-thread/components/drivers/i2c/i2c_dev.c"
-          },
-          {
-            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
           },
           {
             "path": "rt-thread/components/drivers/ipc/completion.c"

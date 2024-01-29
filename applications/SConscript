@@ -7,7 +7,6 @@ CPPPATH = [cwd]
 src = []
 
 src += glob.glob('*.c')
-src += ['common.h']
 
 group = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH)
 

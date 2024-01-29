@@ -3,31 +3,44 @@
  *
  * Change Logs:
  * Date           Author       LYX
- * 2023-12-18     RiceChen    first edition
+ * 2023-12-18     LYX          first edition
  */
  
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "channel.h"
-#include "channel_can.h"
+#include "can_channel.h"
 
-static struct channel channel;
+channel_type current_type;
 
-struct channel *channel_select(channel_type type)
+void set_rx_callback(int (*rx_callback) (size_t len, void *parameter), void *parameter)
 {
-	struct channel *p = &channel;
-	struct channel_can_ops *can_ops;
+	if (rx_callback == NULL)
+		return;
+	switch (current_type) {
+	case CHANNEL_HW_USING_CAN:
+		set_can_rx_callback(rx_callback, parameter);
+		break;
+	case CHANNEL_HW_USING_UART:
+		break;
+	default:
+		set_can_rx_callback(rx_callback, parameter);
+		break;
+	}
+}
+
+int channel_init(struct channel *channel, channel_type type)
+{
+	int result;
+	current_type = type;
 	switch (type) {
 	case CHANNEL_HW_USING_CAN:
-		can_ops = get_can_ops_handler();
-		p->read = can_ops->read;
-		p->write = can_ops->write;
-		p->init = can_ops->init;
+		result = can_channel_init(channel);
 		break;
 	case CHANNEL_HW_USING_UART:
 		break;
 	default:
 		break;
 	}
-    return p;
+    return result;
 }
