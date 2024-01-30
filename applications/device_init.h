@@ -14,6 +14,6 @@ struct device_lock {
 
 extern struct device_lock *device_create(void);
 extern void device_delete(struct device_lock *lock);
-extern int device_init(struct device_lock *lock, device_type dev_type, channel_type ch_type, uint8_t addr, const uint8_t *sn);
+extern int device_init(struct device_lock *lock, device_type_t dev_type, channel_type_t ch_type, uint8_t addr, uint32_t sn);
 
 #endif /* __DEVICE_INIT_H__ */

@@ -121,13 +121,13 @@
             "path": "rt-thread/components/drivers/core/device.c"
           },
           {
-            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
-          },
-          {
             "path": "rt-thread/components/drivers/i2c/i2c_core.c"
           },
           {
             "path": "rt-thread/components/drivers/i2c/i2c_dev.c"
+          },
+          {
+            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
           },
           {
             "path": "rt-thread/components/drivers/ipc/completion.c"

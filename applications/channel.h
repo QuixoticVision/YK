@@ -10,6 +10,6 @@ struct channel {
     void *user_data;                //备用
 };
 
-extern int channel_init(struct channel *channel, channel_type type);
+extern int channel_init(struct channel *channel, channel_type_t type);
 extern void set_rx_callback(int (*rx_callback) (size_t len, void *parameter), void *parameter);
 #endif /* __CHANNEL_H__ */

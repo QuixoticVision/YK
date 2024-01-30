@@ -10,6 +10,3 @@
 #include <rtdevice.h>
 #include "storage.h"
 
-int write_config(const char *name, data_t *data);
-int read_config(const char *nmae, data_t *buff);
-int delete_config(const char *name);

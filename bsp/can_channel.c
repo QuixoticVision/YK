@@ -97,11 +97,17 @@ static int can_channel_open(const struct device_info *info)
 #ifdef RT_CAN_USING_HDR
     if (info) {
         uint32_t id = (uint32_t)(info->addr << 0) + (uint32_t)(info->net_id << 8) + (uint32_t)(info->dev_id << 16);
+        uint32_t id_yk_avc = (uint32_t)(info->addr << 0) + (uint32_t)(info->net_id << 8) + 0xFF0000;
         M_PRINTF("can filter: 0x%08x\n", id);
         struct rt_can_filter_item items[] = {
             RT_CAN_FILTER_EXT_INIT(id, NULL, NULL),
+            RT_CAN_FILTER_EXT_INIT(id_yk_avc, NULL, NULL),
         };
-        struct rt_can_filter_config cfg = {1, 1, items}; /* 一共有 1 个过滤表 */
+        struct rt_can_filter_config cfg = {1, 1, items};
+        if ((info->dev_type == YK_LOCK) || (info->dev_type == AVC_SWITCH) || (info->dev_type == YK_AVC_SWITCH))
+            cfg.count = 2; /* 一共有 2 个过滤表 */
+        else
+            cfg.count = 1; /* 一共有 1 个过滤表 */
         /* 设置硬件过滤表 */
         res = rt_device_control(dev, RT_CAN_CMD_SET_FILTER, &cfg);
         RT_ASSERT(res == RT_EOK);

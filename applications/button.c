@@ -3,7 +3,7 @@
  *
  * Change Logs:
  * Date           Author       LYX
- * 2023-12-18     RiceChen    first edition
+ * 2023-12-18     LYX          first edition
  */
  
 #include <rtthread.h>

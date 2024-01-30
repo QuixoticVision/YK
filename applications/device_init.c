@@ -9,6 +9,7 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "device_init.h"
+#include "operations.h"
 
 #define DBG_TAG                 "lock"
 #define DBG_LVL                 DBG_LOG
@@ -20,13 +21,15 @@
  *  AVC,            //AVC
  *  AVC_COLD_LOCK,  //AVC冷闭锁
  *  AVC_SWITCH,     //AVC开关
+ *  YK_AVC_SWITCH   //YK、AVC开关合体
  */
 static const uint8_t device_id_table[DEVICE_TYPE_MAX] = {
     0x03,
     0x03,
     0x03,
     0x03,
-    0x19
+    0x19,
+    0xff,
 };
 
 struct device_lock *device_create(void)
@@ -47,7 +50,7 @@ void device_delete(struct device_lock *lock)
     rt_free(lock);
 }
 
-int device_init(struct device_lock *lock, device_type dev_type, channel_type ch_type, uint8_t addr, uint32_t sn)
+int device_init(struct device_lock *lock, device_type_t dev_type, channel_type_t ch_type, uint8_t addr, uint32_t sn)
 {
     int result = RT_EOK;
 
@@ -67,6 +70,8 @@ int device_init(struct device_lock *lock, device_type dev_type, channel_type ch_
     if (result != RT_EOK) {
         return result;
     }
+
+    lock_operations_init(lock);
 
     M_LOG_I("lock:0x%08x", lock);
     M_LOG_I("lock->channel:0x%08x", lock->channel);

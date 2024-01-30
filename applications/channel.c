@@ -11,7 +11,7 @@
 #include "channel.h"
 #include "can_channel.h"
 
-channel_type current_type;
+channel_type_t current_type;
 
 void set_rx_callback(int (*rx_callback) (size_t len, void *parameter), void *parameter)
 {
@@ -29,7 +29,7 @@ void set_rx_callback(int (*rx_callback) (size_t len, void *parameter), void *par
 	}
 }
 
-int channel_init(struct channel *channel, channel_type type)
+int channel_init(struct channel *channel, channel_type_t type)
 {
 	int result;
 	current_type = type;

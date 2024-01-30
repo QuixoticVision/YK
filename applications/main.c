@@ -5,7 +5,7 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2019-01-11     RiceChen    first edition
+ * 2023-12-18     LYX          first edition
  */
 
 #include <rtthread.h>
@@ -59,9 +59,9 @@ static int rx_cb(size_t len, void *parameter)
 
 int main(void)
 {
-    uint8_t sn[3] = {0x11, 0x22, 0x33};
     struct device_lock *lock = device_create();
-    if (device_init(lock, YK_LOCK, CHANNEL_HW_USING_CAN, 0x10, sn) != RT_EOK) {
+    /* SN码顺序为从高到低 */
+    if (device_init(lock, YK_LOCK, CHANNEL_HW_USING_CAN, 0x10, 0x332211) != RT_EOK) {
         return -1;
     }
     lock->channel->open(lock->info);

@@ -9,7 +9,11 @@
             "operations.h": "c",
             "device_init.h": "c",
             "rtdevice.h": "c",
-            "rtthread.h": "c"
+            "rtthread.h": "c",
+            "channel.h": "c",
+            "protocol.h": "c",
+            "common.h": "c",
+            "string.h": "c"
         }
     },
     "extensions": {}

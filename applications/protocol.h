@@ -14,8 +14,8 @@
 
 //AVC开关部分通信规约
 #define FUNC_CODE_AVC_QUERY_STATE                   0x31    //上位机查询AVC开关状态
-#define FUNC_CODE_AVC_CONTROL_ENGAGE                0x35    //上位机对AVC执行投退命令（上位机主动发起）
-#define FUNC_CODE_AVC_CONTROL_DISENGAGE             0x32    //上位机对AVC执行投退命令（下位机主动发起）
+#define FUNC_CODE_AVC_CONTROL_COMMAND               0x35    //上位机对AVC执行投退命令（上位机主动发起）
+#define FUNC_CODE_AVC_CONTROL_REQUEST               0x32    //上位机对AVC执行投退命令（下位机主动发起）
 #define FUNC_CODE_AVC_MODIFY_DEVICE                 0x33    //变更地址及设备类型
 #define FUNC_CODE_AVC_MODIFY_SN                     0x37    //变更SN指令
 #define FUNC_CODE_AVC_PRODUCTION_QUERY              0x3F    //超级查询指令（点对点）
@@ -37,8 +37,8 @@ typedef enum {
     INDEX_YK_PRODUCTION_MODIFY_SN,
 
     IDNEX_AVC_QUERY_STATE,
-    INDEX_AVC_CONTROL_UPPER,
-    INDEX_AVC_CONTROL_LOWER,
+    INDEX_AVC_CONTROL_COMMAND,
+    INDEX_AVC_CONTROL_REQUEST,
     INDEX_AVC_MODIFY_ADDR_TYPE,
     INDEX_AVC_MODIFY_SN,
     INDEX_AVC_PRODUCTION_QUERY,
@@ -70,6 +70,6 @@ struct protocol {
     int (*handler) (const struct parsed_data *data);
 };
 
-extern int protocol_init(struct protocol *protocol, struct channel *channel, device_type dev_type, channel_type ch_type);
+extern int protocol_init(struct protocol *protocol, struct channel *channel, device_type_t dev_type, channel_type_t ch_type);
 
 #endif /* __PROTOCOL_H__ */
