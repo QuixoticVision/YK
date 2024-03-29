@@ -1,7 +1,14 @@
 {
     "version": 4,
     "beforeBuildTasks": [],
-    "afterBuildTasks": [],
+    "afterBuildTasks": [
+        {
+            "name": "fromelf --bin !L --output rtthread.bin",
+            "command": "cd .\\. && fromelf --bin .\\${OutDirBase}\\${ProjectName}.axf --output rtthread.bin",
+            "disable": false,
+            "abortAfterFailed": true
+        }
+    ],
     "global": {
         "use-microLIB": true,
         "output-debug-info": "enable"

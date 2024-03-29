@@ -5,7 +5,7 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2018-11-06     RiceChen   first version
+ * 2023-12-18     LYX          first edition
  */
 
 #include "board.h"

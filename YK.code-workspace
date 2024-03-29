@@ -6,14 +6,12 @@
     ],
     "settings": {
         "files.associations": {
-            "operations.h": "c",
-            "device_init.h": "c",
-            "rtdevice.h": "c",
-            "rtthread.h": "c",
-            "channel.h": "c",
-            "protocol.h": "c",
             "common.h": "c",
-            "string.h": "c"
+            "hw_define.h": "c",
+            "protocol.h": "c",
+            "operation.h": "c",
+            "board.h": "c",
+            "lock.h": "c"
         }
     },
     "extensions": {}

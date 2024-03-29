@@ -8,14 +8,17 @@
  
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "protocol.h"
-#include "handler.h"
-#include "operations.h"
-#include "crc8.h"
 
 #define DBG_TAG                 "handler"
 #define DBG_LVL                 DBG_LOG
 #include <rtdbg.h>
+
+#include "protocol.h"
+#include "handler.h"
+#include "operation.h"
+#include "crc8.h"
+#include "hw_define.h"
+#include "board.h"
 
 static int func_yk_query_state(uint8_t *data, size_t len);
 static int func_yk_control(uint8_t *data, size_t len);
@@ -61,8 +64,26 @@ static handler_t handler[] = {
 
 static struct {
     struct channel *channel;
-    struct lock_operations *operation;
+    struct lock_info *info;
+    struct lock_operation *operation;
 } self;
+
+// static int write_bytes_with_crc(size_t size, ...)
+// {
+//     int i;
+//     uint8_t data[size];
+//     memset(data, 0, size);
+//     va_list args;
+
+//     va_start(args, size);
+//     for (i = 3; i < size - 1; i++) {    
+//         data[i] = va_arg(args, int);
+//     }
+//     va_end(args);
+
+//     data[i] = crc8(data, size);
+//     return self.channel->write(data, size);
+// }
 
 //YK
 /* 0x01 */
@@ -89,10 +110,12 @@ static int func_yk_query_state(uint8_t *data, size_t len)
 /* 0x02 */
 static int func_yk_control(uint8_t *data, size_t len)
 {
-    if (data[2] == 0x01) {
-        self.operation->control(CONTROL_YK_OPEN);
+    uint8_t port = data[5];
+    uint8_t opt = data[6];
+    if (opt == 0x00) {
+        self.operation->control(CONTROL_YK_CLOSE, &port);
     } else {
-        self.operation->control(CONTROL_YK_CLOSE);
+        self.operation->control(CONTROL_YK_OPEN, &port);
     }
     uint8_t buff[8];
     memset(buff, 0, ARRAY_SIZE(buff));
@@ -111,18 +134,18 @@ static int func_yk_control(uint8_t *data, size_t len)
 /* 0x03 */
 static int func_yk_modify_addr(uint8_t *data, size_t len)
 {
-    uint8_t addr = self.operation->get_addr();
-    uint32_t sn = self.operation->get_sn();
+    uint8_t addr = data[5];
+    uint32_t sn = 0;
+    sn += (uint32_t)(data[6] << 16);
+    sn += (uint32_t)(data[7] << 8);
+    sn += (uint32_t)(data[8] << 0);
 
-    if (addr != data[1]) {
-        return RT_ERROR;    //地址不匹配
-    }
-
-    if (sn != ((uint32_t)(data[2] << 16) + (uint32_t)(data[1] << 8) + (uint32_t)(data[0] << 0))) {
+    if (sn != self.operation->get_sn()) {
         return RT_ERROR;    //SN不匹配
     }
 
-    self.operation->modify_addr(data[1]);
+    self.operation->modify_addr(addr);
+    rt_hw_cpu_reset();
 
     return RT_EOK;
 }
@@ -148,8 +171,33 @@ static int func_yk_report_state(uint8_t *data, size_t len)
     return RT_EOK;
 }
 
+/* 0x07 */
 static int func_yk_production_modify_sn(uint8_t *data, size_t len)
 {
+    uint32_t sn = 0;
+    sn += (uint32_t)(data[6] << 16);
+    sn += (uint32_t)(data[7] << 8);
+    sn += (uint32_t)(data[8] << 0);
+
+    self.operation->modify_sn(sn);
+    if (self.info->hardware_type == HW_AVC_SWITCH && self.info->lock_type != YK_LOCK) {
+        self.operation->modify_device(YK_LOCK);
+    }
+
+    uint8_t buff[10];
+    memset(buff, 0, ARRAY_SIZE(buff));
+
+    buff[3] = 0x05;
+    buff[4] = 0x07;
+    buff[5] = 0x00;
+    sn = self.operation->get_sn();
+    buff[6] = sn >> 16;
+    buff[7] = sn >> 8;
+    buff[8] = sn >> 0;
+    buff[9] = crc8(buff, ARRAY_SIZE(buff) - 1);
+
+    self.channel->write(buff, ARRAY_SIZE(buff));
+
     return RT_EOK;
 }
 
@@ -161,7 +209,7 @@ static int func_avc_query_state(uint8_t *data, size_t len)
     memset(buff, 0, ARRAY_SIZE(buff));
 
     buff[3] = 0x06;
-    buff[4] = 0x04;
+    buff[4] = 0x31;
     buff[5] = self.operation->get_addr();
     uint32_t sn = self.operation->get_sn();
     buff[6] = sn >> 16;
@@ -178,10 +226,19 @@ static int func_avc_query_state(uint8_t *data, size_t len)
 /* 0x35 */
 static int func_avc_control_command(uint8_t *data, size_t len)
 {
-    self.operation->control(CONTROL_AVC_SWITCH_ENGAGE);
+    uint8_t opt = data[5];
+
+    if (opt == 0x10) {
+        self.operation->control(CONTROL_AVC_SWITCH_ENGAGE, NULL);
+    } else if (opt == 0x01) {
+        self.operation->control(CONTROL_AVC_SWITCH_DISENGAGE, NULL);
+    } else {
+        return RT_ERROR;
+    }
+
     uint8_t buff[10];
     memset(buff, 0, ARRAY_SIZE(buff));
-
+    
     buff[3] = 0x05;
     buff[4] = 0x35;
     buff[5] = 0x03;
@@ -198,36 +255,38 @@ static int func_avc_control_command(uint8_t *data, size_t len)
 /* 0x32 上位机收到请求后的返回报文 */
 static int func_avc_control_request(uint8_t *data, size_t len)
 {
-    if (data[1] == 0x10) {  /* 同意请求 */
-        if (data[2] == 0x10) {
-            self.operation->control(CONTROL_AVC_SWITCH_ENGAGE);
-        } else if (data[2] == 0x01) {
-            self.operation->control(CONTROL_AVC_SWITCH_DISENGAGE);
+    uint8_t answer = data[5];
+    uint8_t opt = data[6];
+    if (answer == 0x10) {  /* 同意请求 */
+        if (opt == 0x10) {
+            self.operation->control(CONTROL_AVC_SWITCH_ENGAGE, NULL);
+        } else if (opt == 0x01) {
+            self.operation->control(CONTROL_AVC_SWITCH_DISENGAGE, NULL);
         } else {
-            M_LOG_E("FAIL: 0x32, AGREE, 0x%02x", data[2]);
+            M_LOG_E("FAIL: 0x10, AGREE, 0x%02x", opt);
             return RT_ERROR;
         }
-    } else if (data[1] == 0x01) {   /* 拒绝请求 */
-        M_LOG_E("FAIL: 0x32, REFUSE, 0x%02x", data[2]);
+    } else if (answer == 0x01) {   /* 拒绝请求 */
+        M_LOG_E("FAIL: 0x01, REFUSE, 0x%02x", opt);
         return RT_ERROR;
     } else {
         return RT_ERROR;
     }
 
-    //操作完返回操作结果
-    self.operation->control(CONTROL_AVC_SWITCH_ENGAGE);
+    //操作并返回操作结果
+    self.operation->control(CONTROL_AVC_SWITCH_ENGAGE, NULL);
     uint8_t buff[10];
     memset(buff, 0, ARRAY_SIZE(buff));
 
     buff[3] = 0x05;
-    buff[4] = 0x32;
+    buff[4] = 0x35; //该命令以0x35功能码返回
     buff[5] = 0x03;
     buff[6] = self.operation->get_addr();
     buff[7] = self.operation->query_state(AVC_SWITCH_RELAY_STATE);
     buff[8] = self.operation->query_state(AVC_SWITCH_OPERATION_RESULT);
     buff[9] = crc8(buff, ARRAY_SIZE(buff) - 1);
 
-    self.channel->write(buff, ARRAY_SIZE(buff));
+    self.channel->write(buff, ARRAY_SIZE(buff));    
 
     return RT_EOK;
 }
@@ -242,13 +301,11 @@ static int func_avc_modify_device(uint8_t *data, size_t len)
     sn += (uint32_t)(data[4] << 8);
     sn += (uint32_t)(data[5] << 0);
 
-    uint8_t result;
-    if (sn != self.operation->get_sn()) {
-        result = 0x01;//失败
-    } else {
-        self.operation->modify_device(type);
-        self.operation->modify_addr(addr);
-        result = 0x10;//成功
+    int result = RT_ERROR;
+    if (sn == self.operation->get_sn() &&
+        self.operation->modify_device(type) == RT_EOK &&
+        self.operation->modify_addr(addr) == RT_EOK) {
+        result = RT_EOK;//成功
     }
 
     uint8_t buff[9];
@@ -258,7 +315,7 @@ static int func_avc_modify_device(uint8_t *data, size_t len)
     buff[4] = 0x33;
     buff[5] = self.operation->get_device();
     buff[6] = self.operation->get_addr();
-    buff[7] = result;
+    buff[7] = result == RT_EOK ? 0x10 : 0x01;
     buff[8] = crc8(buff, ARRAY_SIZE(buff) - 1);
 
     self.channel->write(buff, ARRAY_SIZE(buff));
@@ -270,12 +327,15 @@ static int func_avc_modify_device(uint8_t *data, size_t len)
 static int func_avc_modify_sn(uint8_t *data, size_t len)
 {
     uint32_t sn = 0;
-    sn += (uint32_t)(data[3] << 16);
-    sn += (uint32_t)(data[4] << 8);
-    sn += (uint32_t)(data[5] << 0);
+    sn += (uint32_t)(data[6] << 16);
+    sn += (uint32_t)(data[7] << 8);
+    sn += (uint32_t)(data[8] << 0);
 
     uint8_t result;
     result = self.operation->modify_sn(sn);
+    if (self.info->hardware_type == HW_AVC_SWITCH && self.info->lock_type != AVC_SWITCH) {
+        self.operation->modify_device(AVC_SWITCH);
+    }
 
     uint8_t buff[11];
     memset(buff, 0, ARRAY_SIZE(buff));
@@ -287,15 +347,31 @@ static int func_avc_modify_sn(uint8_t *data, size_t len)
     buff[6] = sn >> 16;
     buff[7] = sn >> 8;
     buff[8] = sn >> 0;
-    buff[9] = result ? 0x10 : 0x01;
+    buff[9] = result == RT_EOK ? 0x10 : 0x01;
     buff[10] = crc8(buff, ARRAY_SIZE(buff) - 1);
 
     self.channel->write(buff, ARRAY_SIZE(buff));
     return RT_EOK;
 }
 
+/* 0x3F */
 static int func_avc_production_query(uint8_t *data, size_t len)
 {
+    uint8_t buff[11];
+    memset(buff, 0, ARRAY_SIZE(buff));
+
+    buff[3] = 0x06;
+    buff[4] = 0x31;
+    buff[5] = self.operation->get_addr();
+    uint32_t sn = self.operation->get_sn();
+    buff[6] = sn >> 16;
+    buff[7] = sn >> 8;
+    buff[8] = sn >> 0;
+    buff[9] = self.operation->query_state(AVC_SWITCH_LED_RELAY_STATE);
+    buff[10] = crc8(buff, ARRAY_SIZE(buff) - 1);
+
+    self.channel->write(buff, ARRAY_SIZE(buff));
+
     return RT_EOK;
 }
 
@@ -324,19 +400,20 @@ static int func_cold_lock_query_all(uint8_t *data, size_t len)
 /* 0x25 */
 static int func_cold_lock_control(uint8_t *data, size_t len)
 {
-    if (data[1] == 0x00) {
-        self.operation->control(CONTROL_COLD_LOCK_POWER_OFF);
-    } else if (data[1] == 0x01) {
-        self.operation->control(CONTROL_COLD_LOCK_POWER_ON);
+    uint8_t opt = data[5];
+    if (opt == 0x00) {
+        self.operation->control(CONTROL_COLD_LOCK_POWER_OFF, NULL);
+    } else if (opt == 0x01) {
+        self.operation->control(CONTROL_COLD_LOCK_POWER_ON, NULL);
     } else {
-        return RT_ERROR;
+        //未定义
     }
 
     uint8_t buff[11];
     memset(buff, 0, ARRAY_SIZE(buff));
 
     buff[3] = 0x06;
-    buff[4] = 0x21;
+    buff[4] = 0x25;
     buff[5] = self.operation->get_addr();
     uint32_t sn = self.operation->get_sn();
     buff[6] = sn >> 16;
@@ -353,13 +430,14 @@ static int func_cold_lock_control(uint8_t *data, size_t len)
 /* 0x2A */
 static int func_cold_lock_modify_timeout(uint8_t *data, size_t len)
 {
-    uint8_t timeout_before1 = self.operation->get_timeout(TIMEOUT_COLD_LOCK_EXEC);
-    uint8_t timeout_before2 = self.operation->get_timeout(TIMEOUT_COLD_LOCK_CMD);
+    uint8_t timeout_exec_before = self.operation->get_timeout_exec();
+    uint8_t timeout_cmd_before = self.operation->get_timeout_cmd();
 
-    self.operation->set_timeout(data[1], data[2]);
+    self.operation->modify_timeout_exec(data[5]);
+    self.operation->modify_timeout_cmd(data[6]);
 
-    uint8_t timeout_after1 = self.operation->get_timeout(TIMEOUT_COLD_LOCK_EXEC);
-    uint8_t timeout_after2 = self.operation->get_timeout(TIMEOUT_COLD_LOCK_CMD);
+    uint8_t timeout_exec_after = self.operation->get_timeout_exec();
+    uint8_t timeout_cmd_after = self.operation->get_timeout_cmd();
 
     uint8_t buff[11];
     memset(buff, 0, ARRAY_SIZE(buff));
@@ -367,10 +445,10 @@ static int func_cold_lock_modify_timeout(uint8_t *data, size_t len)
     buff[3] = 0x06;
     buff[4] = 0x2A;
     buff[5] = self.operation->get_addr();
-    buff[6] = timeout_before1;
-    buff[7] = timeout_before2;
-    buff[8] = timeout_after1;
-    buff[9] = timeout_after2;
+    buff[6] = timeout_exec_before;
+    buff[7] = timeout_cmd_before;
+    buff[8] = timeout_exec_after;
+    buff[9] = timeout_cmd_after;
     buff[10] = crc8(buff, ARRAY_SIZE(buff) - 1);
 
     self.channel->write(buff, ARRAY_SIZE(buff));
@@ -381,17 +459,17 @@ static int func_cold_lock_modify_timeout(uint8_t *data, size_t len)
 /* 0x23 */
 static int func_cold_lock_modify_addr(uint8_t *data, size_t len)
 {
+    uint8_t addr = data[5];
     uint32_t sn = 0;
-    sn += data[2] << 16;
-    sn += data[3] << 8;
-    sn += data[4] << 0;
+    sn += data[6] << 16;
+    sn += data[7] << 8;
+    sn += data[8] << 0;
 
-    if (sn != self.operation->get_sn()) {
+    if (sn == self.operation->get_sn()) {
+        self.operation->modify_addr(addr);
+    } else {
         M_LOG_E("sn not match");
-        return RT_ERROR;
     }
-
-    self.operation->modify_addr(data[1]);
 
     uint8_t buff[11];
     memset(buff, 0, ARRAY_SIZE(buff));
@@ -434,9 +512,10 @@ handler_t *get_handler_table(void)
     return handler;
 }
 
-int handler_init(struct channel *current_channel)
+int handler_init(struct lock *lock)
 {
-    self.channel = current_channel;
-    self.operation = get_lock_operations();
+    self.channel = lock->channel;
+    self.info = lock->info;
+    self.operation = lock->ops;
     return RT_EOK;
 }

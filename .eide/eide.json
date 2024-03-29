@@ -13,37 +13,43 @@
         "name": "Applications",
         "files": [
           {
-            "path": "applications/bl24c128.c"
-          },
-          {
             "path": "applications/button.c"
           },
           {
             "path": "applications/channel.c"
           },
           {
-            "path": "applications/crc8.c"
+            "path": "applications/config.c"
           },
           {
-            "path": "applications/device_init.c"
+            "path": "applications/crc8.c"
           },
           {
             "path": "applications/handler.c"
           },
           {
+            "path": "applications/lock.c"
+          },
+          {
             "path": "applications/main.c"
           },
           {
-            "path": "applications/operations.c"
+            "path": "applications/operation.c"
           },
           {
             "path": "applications/protocol.c"
           },
           {
             "path": "applications/storage.c"
-          },
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "at24cxx",
+        "files": [
           {
-            "path": "applications/test.c"
+            "path": "packages/at24cxx-latest/at24cxx.c"
           }
         ],
         "folders": []
@@ -56,6 +62,15 @@
           },
           {
             "path": "bsp/uart_channel.c"
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "cmd",
+        "files": [
+          {
+            "path": "applications/cmd/command.c"
           }
         ],
         "folders": []
@@ -121,13 +136,16 @@
             "path": "rt-thread/components/drivers/core/device.c"
           },
           {
+            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
+          },
+          {
             "path": "rt-thread/components/drivers/i2c/i2c_core.c"
           },
           {
             "path": "rt-thread/components/drivers/i2c/i2c_dev.c"
           },
           {
-            "path": "rt-thread/components/drivers/i2c/i2c-bit-ops.c"
+            "path": "rt-thread/components/drivers/i2c/soft_i2c.c"
           },
           {
             "path": "rt-thread/components/drivers/ipc/completion.c"
@@ -179,6 +197,9 @@
           },
           {
             "path": "libraries/HAL_Drivers/drv_gpio.c"
+          },
+          {
+            "path": "libraries/HAL_Drivers/drv_soft_i2c.c"
           },
           {
             "path": "libraries/HAL_Drivers/drv_usart.c"
@@ -341,6 +362,18 @@
           }
         ],
         "folders": []
+      },
+      {
+        "name": "test",
+        "files": [
+          {
+            "path": "test/test_bl24.c"
+          },
+          {
+            "path": "test/test.c"
+          }
+        ],
+        "folders": []
       }
     ]
   },
@@ -476,14 +509,13 @@
           "cpuName": "STM32L431RC"
         },
         "proType": 1,
-        "speed": 8000,
+        "speed": 4000,
         "otherCmds": ""
       },
       "uploadConfigMap": {},
       "custom_dep": {
         "name": "default",
         "incList": [
-          "rt-thread/components/libc/compilers/common/extension/fcntl/octal",
           "libraries/STM32L4xx_HAL/STM32L4xx_HAL_Driver/Inc",
           "rt-thread/components/drivers/include",
           "rt-thread/components/libc/posix/io/epoll",
@@ -491,18 +523,22 @@
           "rt-thread/include",
           "rt-thread/components/libc/posix/io/eventfd",
           "board",
+          "rt-thread/components/libc/compilers/common/extension",
           "applications",
           "libraries/HAL_Drivers/CMSIS/Include",
-          "rt-thread/libcpu/arm/cortex-m4",
           "rt-thread/components/libc/posix/io/poll",
           "libraries/STM32L4xx_HAL/CMSIS/Device/ST/STM32L4xx/Include",
-          "rt-thread/components/libc/compilers/common/extension",
+          "packages/at24cxx-latest",
+          "rt-thread/components/libc/compilers/common/extension/fcntl/octal",
           "rt-thread/components/libc/compilers/common/include",
           "rt-thread/libcpu/arm/common",
           ".",
           "packages/FlexibleButton-latest",
+          "test",
           "bsp",
+          "applications/cmd",
           "libraries/HAL_Drivers",
+          "rt-thread/libcpu/arm/cortex-m4",
           "rt-thread/components/libc/posix/ipc",
           "board/cubemx/Core/Inc",
           "libraries/HAL_Drivers/config",

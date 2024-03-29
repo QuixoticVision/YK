@@ -8,11 +8,18 @@
  
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "board.h"
+#include <common.h>
+
+#define DBG_TAG                 "button"
+#define DBG_LVL                 DBG_LOG
+#include <rtdbg.h>
+
 #include "flexible_button.h"
+#include "board.h"
+#include "button.h"
 
 #ifndef PIN_KEY0
-#define PIN_KEY0 NULL
+#define PIN_KEY0 GET_PIN(B, 1)
 #endif
 
 #define ENUM_TO_STR(e) (#e)
@@ -22,6 +29,8 @@ typedef enum
     USER_BUTTON_0 = 0,
     USER_BUTTON_MAX
 } user_button_t;
+
+static void (*btn_cb) (void);
 
 static char *enum_event_string[] = {
     ENUM_TO_STR(FLEX_BTN_PRESS_DOWN),
@@ -65,16 +74,44 @@ static uint8_t common_btn_read(void *arg)
 static void button_event_cb(void *arg)
 {
     flex_button_t *btn = (flex_button_t *)arg;
+    flex_button_event_t event = flex_button_event_read(btn);
 
-    rt_kprintf("id: [%d - %s]  event: [%d - %30s]  repeat: %d\n", 
-        btn->id, enum_btn_id_string[btn->id],
-        btn->event, enum_event_string[btn->event],
-        btn->click_cnt);
+    if (btn == &user_button[USER_BUTTON_0]) goto button0;
 
-    if ((flex_button_event_read(&user_button[USER_BUTTON_0]) == FLEX_BTN_PRESS_CLICK))
-    {
-        rt_kprintf("[combination]: button 0 and button 1\n");
+    return;
+button0:
+    M_LOG_I("%s", enum_event_string[event]);
+    switch (event) {
+    case FLEX_BTN_PRESS_DOWN:
+        if (btn_cb) btn_cb();
+        break;
+    case FLEX_BTN_PRESS_CLICK:
+        break;
+    case FLEX_BTN_PRESS_DOUBLE_CLICK:
+        break;
+    case FLEX_BTN_PRESS_REPEAT_CLICK:
+        break;
+    case FLEX_BTN_PRESS_SHORT_START:
+        break;
+    case FLEX_BTN_PRESS_SHORT_UP:
+        break;
+    case FLEX_BTN_PRESS_LONG_START:
+        break;
+    case FLEX_BTN_PRESS_LONG_UP:
+        break;
+    case FLEX_BTN_PRESS_LONG_HOLD:
+        break;
+    case FLEX_BTN_PRESS_LONG_HOLD_UP:
+        break;
+    case FLEX_BTN_PRESS_MAX:
+        break;
+    case FLEX_BTN_PRESS_NONE:
+        break;
+    default:
+        break;
     }
+
+    return;
 }
 
 static void button_scan(void *arg)
@@ -108,9 +145,9 @@ static void user_button_init(void)
     }
 }
 
-void bind_button_event_click(void (*callback) (void))
+void bind_button_press_event(void (*callback) (void))
 {
-
+    btn_cb = callback;
 }
 
 int flex_button_main(void)

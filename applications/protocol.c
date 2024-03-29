@@ -8,18 +8,20 @@
  
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "protocol.h"
-#include "handler.h"
-#include "crc8.h"
 
 #define DBG_TAG                 "protocol"
 #define DBG_LVL                 DBG_LOG
 #include <rtdbg.h>
 
+#include "protocol.h"
+#include "handler.h"
+#include "crc8.h"
+
 static struct {
+    uint8_t size;
+    struct lock_info *info;
     struct handler_index_table *set;
     handler_t *handler_table;
-    channel_type_t channel_type;
 } self;
 
 static struct handler_index_table protocol_set_yk[] = {
@@ -29,7 +31,7 @@ static struct handler_index_table protocol_set_yk[] = {
     {FUNC_CODE_YK_REPORT_STATE, INDEX_YK_REPORT_STATE},
     {FUNC_CODE_YK_PRODUCTION_MODIFY_SN, INDEX_YK_PRODUCTION_MODIFY_SN},
 
-    {FUNC_CODE_AVC_MODIFY_DEVICE, INDEX_AVC_MODIFY_ADDR_TYPE},  //0x33: 变更设备类型，YK锁也需要支持这个功能码
+    {FUNC_CODE_AVC_MODIFY_SN, INDEX_AVC_MODIFY_SN},
 };
 
 static struct handler_index_table protocol_set_avc_switch[] = {
@@ -39,6 +41,8 @@ static struct handler_index_table protocol_set_avc_switch[] = {
     {FUNC_CODE_AVC_MODIFY_DEVICE, INDEX_AVC_MODIFY_ADDR_TYPE},
     {FUNC_CODE_AVC_MODIFY_SN, INDEX_AVC_MODIFY_SN},
     {FUNC_CODE_AVC_PRODUCTION_QUERY, INDEX_AVC_PRODUCTION_QUERY},
+
+    {FUNC_CODE_YK_PRODUCTION_MODIFY_SN, INDEX_YK_PRODUCTION_MODIFY_SN},
 };
 
 static struct handler_index_table protocol_set_cold_lock[] = {
@@ -48,22 +52,6 @@ static struct handler_index_table protocol_set_cold_lock[] = {
     {FUNC_CODE_COLD_LOCK_MODIFY_ADDR, INDEX_COLD_LOCK_MODIFY_ADDR},
     {FUNC_CODE_COLD_LOCK_MODIFY_SN, INDEX_COLD_LOCK_MODIFY_SN},
     {FUNC_CODE_COLD_LOCK_PRODUCTION_QUERY, INDEX_COLD_LOCK_PRODUCTION_QUERY},
-};
-
-/* 设备为YK、AVC合体 */
-static struct handler_index_table protocol_set_yk_avc_integration[] = {
-    {FUNC_CODE_YK_QUERY_STATE, INDEX_YK_QUERY_STATE},
-    {FUNC_CODE_YK_CONTROL, INDEX_YK_CONTROL},
-    {FUNC_CODE_YK_MODIFY_ADDR, INDEX_YK_MODIFY_ADDR},
-    {FUNC_CODE_YK_REPORT_STATE, INDEX_YK_REPORT_STATE},
-    {FUNC_CODE_YK_PRODUCTION_MODIFY_SN, INDEX_YK_PRODUCTION_MODIFY_SN},
-
-    {FUNC_CODE_AVC_QUERY_STATE, IDNEX_AVC_QUERY_STATE},
-    {FUNC_CODE_AVC_CONTROL_COMMAND, INDEX_AVC_CONTROL_COMMAND},
-    {FUNC_CODE_AVC_CONTROL_REQUEST, INDEX_AVC_CONTROL_REQUEST},
-    {FUNC_CODE_AVC_MODIFY_DEVICE, INDEX_AVC_MODIFY_ADDR_TYPE},
-    {FUNC_CODE_AVC_MODIFY_SN, INDEX_AVC_MODIFY_SN},
-    {FUNC_CODE_AVC_PRODUCTION_QUERY, INDEX_AVC_PRODUCTION_QUERY},
 };
 
 static int protocol_parser(struct parsed_data *buff, uint8_t *data, size_t len)
@@ -79,17 +67,23 @@ static int protocol_parser(struct parsed_data *buff, uint8_t *data, size_t len)
         return RT_ERROR;
     }
 
-    if (self.channel_type != CHANNEL_HW_USING_CAN) {
-        //如果不是CAN通讯，需要判断帧头是否匹配
+    uint8_t dev_id = data[0];
+    uint8_t addr = data[2];
+    uint8_t func_code = data[4];
+
+    if (self.info->hardware_type == HW_AVC_SWITCH) {
+        if (dev_id != self.info->dev_id &&
+            func_code != FUNC_CODE_AVC_MODIFY_SN &&
+            func_code != FUNC_CODE_YK_PRODUCTION_MODIFY_SN) {
+            return RT_ERROR;
+        }
     }
     
-    int size = ARRAY_SIZE(self.set);
-    uint8_t code = data[4];
-    for (int i = 0; i < size; i++) {
-        if (code == self.set[i].func_code) {
-            buff->index = i;
-            buff->data = &data[4];   /* 数据从第五字节开始，前四字节：3字节帧头 + 1字节长度信息 */
-            buff->len = data[3];     /* 长度信息 */
+    for (int i = 0; i < self.size; i++) {
+        if (func_code == self.set[i].func_code) {
+            buff->index = self.set[i].index;
+            buff->data = data;   /* 数据从第五字节开始，前四字节：3字节帧头 + 1字节长度信息 */
+            buff->len = len;     /* 长度信息 */
             return RT_EOK;
         }
     }
@@ -107,35 +101,38 @@ static int protocol_handler(const struct parsed_data *data)
     return handler(data->data, data->len);
 }
 
-int protocol_init(struct protocol *protocol, struct channel *channel, device_type_t dev_type, channel_type_t ch_type)
+int protocol_init(struct lock *lock)
 {
-    switch (dev_type) {
+    lock_type_t lock_type = lock->info->lock_type;
+    switch (lock_type) {
     case YK_LOCK:
         self.set = protocol_set_yk;
+        self.size = ARRAY_SIZE(protocol_set_yk);
         break;
     case YK_COLD_LOCK:
         self.set = protocol_set_cold_lock;
+        self.size = ARRAY_SIZE(protocol_set_cold_lock);
         break;
     case AVC:
         self.set = protocol_set_yk;
+        self.size = ARRAY_SIZE(protocol_set_yk);
         break;
     case AVC_COLD_LOCK:
         self.set = protocol_set_cold_lock;
+        self.size = ARRAY_SIZE(protocol_set_cold_lock);
         break;
     case AVC_SWITCH:
         self.set = protocol_set_avc_switch;
-        break;
-    case YK_AVC_SWITCH:
-        self.set = protocol_set_yk_avc_integration;
+        self.size = ARRAY_SIZE(protocol_set_avc_switch);
         break;
     default:
         return RT_ERROR;
     }
-    self.channel_type = ch_type;
+    self.info = lock->info;
     self.handler_table = get_handler_table();
-    handler_init(channel);
-    protocol->parser = protocol_parser;
-    protocol->handler = protocol_handler;
+    handler_init(lock);
+    lock->protocol->parser = protocol_parser;
+    lock->protocol->handler = protocol_handler;
     return RT_EOK;
 }
 

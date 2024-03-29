@@ -15,8 +15,27 @@
             "rtthread.h": "c",
             "can_channel.h": "c",
             "rtdevice.h": "c",
-            "common.h": "c"
-        }
+            "common.h": "c",
+            "drv_config.h": "c",
+            "drv_soft_i2c.h": "c",
+            "drv_log.h": "c",
+            "at24cxx.h": "c",
+            "config.h": "c",
+            "operations.h": "c",
+            "uart_channel.h": "c",
+            "rtdbg.h": "c",
+            "lock.h": "c",
+            "hw_define.h": "c",
+            "drv_common.h": "c",
+            "operation.h": "c",
+            "board.h": "c",
+            "command.h": "c",
+            "button.h": "c",
+            "flexible_button.h": "c",
+            "stdlib.h": "c",
+            "stdio.h": "c"
+        },
+        "cortex-debug.variableUseNaturalFormat": false
     },
     "extensions": {}
 }

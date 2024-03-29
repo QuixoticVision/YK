@@ -86,8 +86,14 @@
 #define RT_USING_CAN
 #define RT_CAN_USING_HDR
 #define RT_USING_I2C
-#define RT_I2C_DEBUG
 #define RT_USING_I2C_BITOPS
+#define RT_USING_SOFT_I2C
+#define RT_USING_SOFT_I2C1
+#define RT_SOFT_I2C1_SCL_PIN 26
+#define RT_SOFT_I2C1_SDA_PIN 27
+#define RT_SOFT_I2C1_BUS_NAME "i2c1"
+#define RT_SOFT_I2C1_TIMING_DELAY 5
+#define RT_SOFT_I2C1_TIMING_TIMEOUT 5
 #define RT_USING_PIN
 #define RT_USING_RTC
 
@@ -189,14 +195,21 @@
 
 /* peripheral libraries and drivers */
 
+/* HAL & SDK Drivers */
+
+/* STM32 HAL & SDK Drivers */
+
+
+/* Kendryte SDK */
+
+
 /* sensors drivers */
 
 
 /* touch drivers */
 
-
-/* Kendryte SDK */
-
+#define PKG_USING_AT24CXX
+#define PKG_USING_AT24CXX_LATEST_VERSION
 
 /* AI packages */
 
@@ -265,6 +278,9 @@
 #define BSP_USING_UART2
 #define BSP_USING_CAN
 #define BSP_USING_CAN1
+#define BSP_USING_I2C1
+#define BSP_I2C1_SCL_PIN 26
+#define BSP_I2C1_SDA_PIN 27
 
 /* Onboard Peripheral Drivers */
 

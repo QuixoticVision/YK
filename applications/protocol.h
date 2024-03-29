@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "channel.h"
+#include "lock.h"
 
 /* ----------------------- FUNCTION CODE BEGIN ------------------------------------------*/
 //YK电气编码锁部分通信规约
@@ -70,6 +71,6 @@ struct protocol {
     int (*handler) (const struct parsed_data *data);
 };
 
-extern int protocol_init(struct protocol *protocol, struct channel *channel, device_type_t dev_type, channel_type_t ch_type);
+int protocol_init(struct lock *lock);
 
 #endif /* __PROTOCOL_H__ */
